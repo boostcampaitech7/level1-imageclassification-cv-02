@@ -1,0 +1,18 @@
+data_module: "src.data.custom_datamodules.mnist_datamodule.MNISTDataModule"
+
+data_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/data_configs/mnist_config.yaml"
+augmentation_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/augmentation_configs/mnist_augmentation.yaml"
+
+models:
+  - module: "src.plmodules.mnist_cnn_module.MNISTModelModule"
+    checkpoint: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/MNIST/ozrn0unf/checkpoints/epoch=6-step=5250.ckpt"
+  - module: "src.plmodules.mnist_module.MNISTModelModule"
+    checkpoint: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/MNIST/fvrvh3mm/checkpoints/epoch=22-step=17250.ckpt"
+
+model:
+
+trainer:
+  accelerator: gpu
+  devices: 1
+
+seed: 42  # 시드 값 추가

@@ -1,0 +1,15 @@
+data_module: "src.data.custom_datamodules.mnist_datamodule.MNISTDataModule"
+model_module: "src.plmodules.mnist_module.MNISTModelModule"
+
+data_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/data_configs/mnist_config.yaml"
+augmentation_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/augmentation_configs/mnist_augmentation.yaml"
+checkpoint_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/MNIST/fvrvh3mm/checkpoints/epoch=22-step=17250.ckpt"  # 여기에 체크포인트 경로 추가
+
+model:
+  lr: 0.001
+
+trainer:
+  accelerator: gpu
+  devices: 1
+
+seed: 42  # 시드 값 추가
