@@ -5,15 +5,14 @@ data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
 model:
-  model_name: "eva02_base_patch14_448.mim_in22k_ft_in1k"
+  model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
   num_classes: 500
   pretrained: True
-  # lr: 0.001
 
 optimizer:
   name: Adam
   params:
-    lr: 0.001
+    lr: 2e-4
 
 scheduler:
   name: StepLR
@@ -22,7 +21,7 @@ scheduler:
     gamma: 0.7
 
 trainer:
-  max_epochs: 50
+  max_epochs: 10
   accelerator: gpu
   devices: 1
 

@@ -53,8 +53,18 @@ pip install -r requirements.txt
 
 
 ## 사용 방법
+### Train
+- config 파일 수정 잘 해서 돌리기 !
+    - 경로: configs/train_configs/train/config.yaml
 ```bash
 python train.py --config configs/train_configs/train/config.yaml
+```
+
+### Test (Inference)
+- config 파일 수정 잘 해서 돌리기 !
+    - 경로: configs/train_configs/test/config.yaml
+```bash
+python test.py --config configs/train_configs/test/config.yaml
 ```
 
 ## 프로젝트 구조

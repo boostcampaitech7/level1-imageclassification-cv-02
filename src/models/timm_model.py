@@ -20,14 +20,13 @@ class TimmModel(nn.Module):
             pretrained=pretrained,
             num_classes=num_classes
         )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # head 제외한 파라미터를 freeze
         for param in self.model.parameters():
             param.requires_grad = False
+        
+        for name, param in self.model.named_parameters():
+            if 'blocks.20' in name or 'blocks.21' in name or 'blocks.22' in name or 'blocks.23' in name or 'head' in name:  # 마지막 2개 블록과 head freeze
+                param.requires_grad = True
 
-        # head 부분만 학습하도록 설정
-        for param in self.model.head.parameters():
-            param.requires_grad = True
-
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
