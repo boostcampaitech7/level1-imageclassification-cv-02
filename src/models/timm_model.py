@@ -22,4 +22,12 @@ class TimmModel(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # head 제외한 파라미터를 freeze
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+        # head 부분만 학습하도록 설정
+        for param in self.model.head.parameters():
+            param.requires_grad = True
+
         return self.model(x)

@@ -57,6 +57,7 @@ def main(config_path, use_wandb=False):
         **config.trainer,
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=logger,
+        precision=16,
     )
 
     # 훈련 시작
@@ -64,6 +65,10 @@ def main(config_path, use_wandb=False):
 
 
 if __name__ == "__main__":
+    import torch, gc
+    gc.collect()
+    torch.cuda.empty_cache()
+
     parser = argparse.ArgumentParser(description="Train a model with PyTorch Lightning")
     parser.add_argument(
         "--config", type=str, required=True, help="Path to the config file"

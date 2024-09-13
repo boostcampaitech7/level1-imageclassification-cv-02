@@ -8,6 +8,7 @@ from torchmetrics.classification import (
     MulticlassRecall,
 )
 from src.models.timm_model import TimmModel
+from torch.cuda.amp import GradScaler, autocast
 
 
 class SketchModelModule(pl.LightningModule):
@@ -20,12 +21,14 @@ class SketchModelModule(pl.LightningModule):
             num_classes=config.model.num_classes,
             pretrained=config.model.pretrained
         )
-        self.precision = MulticlassPrecision(num_classes=500, average="macro")
-        self.recall = MulticlassRecall(num_classes=500, average="macro")
-        self.f1_score = MulticlassF1Score(num_classes=500, average="macro")
+        self.precision = MulticlassPrecision(num_classes=config.model.num_classes, average="macro")
+        self.recall = MulticlassRecall(num_classes=config.model.num_classes, average="macro")
+        self.f1_score = MulticlassF1Score(num_classes=config.model.num_classes, average="macro")
         self.wandb_logger = WandbLogger(project="Sketch", name="SKETCH_TEST")
         self.test_results = {}
         self.test_step_outputs = []  # 추가
+
+        # self.scaler = GradScaler()
 
     def forward(self, x):
         return self.model(x)
@@ -34,6 +37,7 @@ class SketchModelModule(pl.LightningModule):
         x, y = batch
         y_hat = self.forward(x)
         loss = F.cross_entropy(y_hat, y)
+
         self.log("train_loss", loss)
         self.log("train_precision", self.precision(y_hat, y))
         self.log("train_recall", self.recall(y_hat, y))
@@ -44,7 +48,15 @@ class SketchModelModule(pl.LightningModule):
         x, y = batch
         y_hat = self.forward(x)
         loss = F.cross_entropy(y_hat, y)
+        
+        # 예측 결과 저장
+        logits = F.softmax(y_hat, dim=1)
+        preds = logits.argmax(dim=1)
+        acc = torch.tensor(torch.sum(preds == y).item() / len(preds))
+        # print("[Validation_acc]:", acc)
+
         self.log("val_loss", loss)
+        self.log("val_acc", acc)
         self.log("val_precision", self.precision(y_hat, y))
         self.log("val_recall", self.recall(y_hat, y))
         self.log("val_f1_score", self.f1_score(y_hat, y))
@@ -57,6 +69,12 @@ class SketchModelModule(pl.LightningModule):
         x, y = batch
         y_hat = self.forward(x)
         loss = F.cross_entropy(y_hat, y)
+
+        # Mixed Precision Autocast 사용
+        # with autocast():
+        #     y_hat = self.forward(x)
+        #     loss = F.cross_entropy(y_hat, y)
+
         self.log("test_loss", loss)
         self.log("test_precision", self.precision(y_hat, y))
         self.log("test_recall", self.recall(y_hat, y))
@@ -81,6 +99,8 @@ class SketchModelModule(pl.LightningModule):
     def predict_step(self, batch, batch_idx):
         x, _ = batch
         y_hat = self.forward(x)
+        # with autocast():
+        #     y_hat = self.forward(x)
         return y_hat
 
     def configure_optimizers(self):
