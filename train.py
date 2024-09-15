@@ -7,7 +7,7 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 
-def main(config_path, use_wandb=False):
+def main(config_path, use_wandb=True):
     # YAML 파일 로드
     config = OmegaConf.load(config_path)
     print(config)
@@ -38,7 +38,7 @@ def main(config_path, use_wandb=False):
     # Wandb 로거 설정 (use_wandb 옵션에 따라)
     logger = None
     if use_wandb:
-        logger = WandbLogger(project="MNIST", name="MNIST_TEST")
+        logger = WandbLogger(project="Sketch", name="Sketch_Test")
 
     # 콜백 설정
     checkpoint_callback = ModelCheckpoint(

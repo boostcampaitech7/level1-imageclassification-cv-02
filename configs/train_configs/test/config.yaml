@@ -1,12 +1,16 @@
-data_module: "src.data.custom_datamodules.mnist_datamodule.MNISTDataModule"
-model_module: "src.plmodules.mnist_module.MNISTModelModule"
+data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
+model_module: "src.plmodules.sketch_module.SketchModelModule"
 
-data_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/data_configs/mnist_config.yaml"
-augmentation_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/augmentation_configs/mnist_augmentation.yaml"
-checkpoint_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/MNIST/fvrvh3mm/checkpoints/epoch=22-step=17250.ckpt"  # 여기에 체크포인트 경로 추가
+data_config_path: "configs/data_configs/sketch_config.yaml"
+augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
+checkpoint_path: "Sketch/ys9amgpe/checkpoints/epoch=5-step=2256.ckpt"
+
+name: "eva02_large_patch14_448_epoch=5_minsol_(2)"
 
 model:
-  lr: 0.001
+  model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
+  num_classes: 500
+  pretrained: True
 
 trainer:
   accelerator: gpu
