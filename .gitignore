@@ -1,0 +1,15 @@
+*.lock
+data/*
+.pre-commit-config.yaml
+*.pyc
+lightning_logs/
+*.ckpt
+wandb
+__MACOSX/
+._*
+data.tar.gz
+competition1/
+Sketch/
+.dvcignore
+.flake8
+.DS_Store
