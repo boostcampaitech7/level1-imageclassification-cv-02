@@ -1,0 +1,16 @@
+program: train.py
+method: 'bayes'  # Hyperparameter search strategy
+
+metric:
+  name: 'val_acc'  # Metric to optimize
+  goal: 'maximize'
+
+parameters:
+  learning_rate':
+    distribution: 'uniform'
+    min: 1e-5
+    max: 1e-2
+  batch_size:
+    values: [16, 32]
+  lr_scheduler:
+    values: ['StepLR', 'CosineAnnealingLR']
