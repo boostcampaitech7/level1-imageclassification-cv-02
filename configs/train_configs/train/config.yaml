@@ -27,12 +27,14 @@ trainer:
 
 callbacks:
   model_checkpoint:
-    monitor: val_loss
+    monitor: val_acc
     save_top_k: 3
-    mode: min
+    mode: max
   early_stopping:
-    monitor: val_loss
+    monitor: val_acc
     patience: 5
-    mode: min
+    mode: max
+
+wandb_name: "eva02-large-sweep"
 
 seed: 42  # 시드 값 추가

@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import wandb
 
 import pytorch_lightning as pl
 from omegaconf import OmegaConf
@@ -7,9 +8,14 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 
-def main(config_path, use_wandb=True):
+def main(config_path, use_wandb=True, sweep_dict=None):
     # YAML 파일 로드
     config = OmegaConf.load(config_path)
+    
+    if sweep_dict is not None: # use sweep
+        config = OmegaConf.merge(config, OmegaConf.create(sweep_dict))
+        # config = OmegaConf.to_container(config, resolve=True)
+    
     print(config)
 
     # 데이터 모듈 동적 임포트
@@ -38,7 +44,7 @@ def main(config_path, use_wandb=True):
     # Wandb 로거 설정 (use_wandb 옵션에 따라)
     logger = None
     if use_wandb:
-        logger = WandbLogger(project="Sketch", name="Sketch_Test")
+        logger = WandbLogger(project="Sketch", name=config.wandb_name)
 
     # 콜백 설정
     checkpoint_callback = ModelCheckpoint(
@@ -57,7 +63,7 @@ def main(config_path, use_wandb=True):
         **config.trainer,
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=logger,
-        precision=16,
+        precision='16-mixed',
     )
 
     # 훈련 시작
@@ -73,6 +79,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config", type=str, required=True, help="Path to the config file"
     )
+    parser.add_argument(
+        "--sweep", type=str, required=True, help="Path to the sweep config file"
+    )
     parser.add_argument("--use_wandb", action="store_true", help="Use Wandb logger")
     args = parser.parse_args()
-    main(args.config, args.use_wandb)
+
+    if args.use_wandb:
+        # wandb.init() # wandb initialization
+        sweep_config = OmegaConf.load(args.sweep)
+        assert isinstance(sweep_config, dict) is False
+        if isinstance(sweep_config, dict) is False:  # Only convert if needed
+            sweep_dict = OmegaConf.to_container(sweep_config, resolve=True)
+        sweep_id = wandb.sweep(sweep_dict, project="Sketch")
+        wandb.agent(sweep_id, main(args.config, args.use_wandb, sweep_dict), count=5)
+    else:
+        main(args.config, args.use_wandb)

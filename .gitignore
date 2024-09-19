@@ -13,3 +13,4 @@ Sketch/
 .dvcignore
 .flake8
 .DS_Store
+sweep.yaml
