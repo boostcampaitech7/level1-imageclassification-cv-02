@@ -27,26 +27,17 @@ source competition1/bin/activate
 pip install poetry
 ```
 
-## 매우 중요
- - **python 3.12 설치가 안됨...**
- - python --version -> 버전 꼭 확인해서 사용하기..!
- - 이미 깔려 있는 python3.10 사용하였음(!)
-    - 경로가 conda에 있는게 수상하긴 한데,, 일단 쓰는 중
-
 ### 1. pyproject.toml 파일 수정
-- python="^3.10"으로 수정.
+- python="^3.10"으로 수정. (3.12 설치 안됨)
 ### 2. poetry 의존성 update
 ```bash
 poetry lock
 ```
-### 3. 설치!
+### 3. 설치
 ```bash
 poetry install
 ```
-- 추가로 설치한 패키지들도 있어서, pip도 해주기!
-    - 알아서 uninstall, install 일어날 예정,,
-    - 실행 결과 패키지 버전 문제는 발생 X
-    - 시간 되면 패키지들은 poetry로 다시 묶어볼게용
+- 추가로 설치한 패키지들도 있어서, pip도 해주기
 ```bash
 pip install -r requirements.txt
 ```
@@ -54,15 +45,13 @@ pip install -r requirements.txt
 
 ## 사용 방법
 ### Train
-- config 파일 수정 잘 해서 돌리기 !
-    - 경로: configs/train_configs/train/config.yaml
+- **config 파일 수정 잘 해서 돌리기**
 ```bash
 python train.py --config configs/train_configs/train/config.yaml
 ```
 
 ### Test (Inference)
-- config 파일 수정 잘 해서 돌리기 !
-    - 경로: configs/train_configs/test/config.yaml
+- **config 파일 수정 잘 해서 돌리기**
 ```bash
 python test.py --config configs/train_configs/test/config.yaml
 ```
