@@ -1,15 +1,26 @@
-data_module: "src.data.custom_datamodules.mnist_datamodule.MNISTDataModule"
+# 여기 본인 모듈에 맞게 경로 고쳐야 합니다. 
 
-data_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/data_configs/mnist_config.yaml"
-augmentation_config_path: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/configs/augmentation_configs/mnist_augmentation.yaml"
+# Data를 처리하기 위한 custom data module의 경로
+# Dataset 과 Dataloader 를 포함하는 개념. 
+data_module: ""
 
+# 데이터 관련 설정을 포함하는 YAML 파일의 경로
+# 훈련/검증/테스트 세트 분할비율, 배치크기, 데이터로딩방식 등등.  
+data_config_path: ""
+augmentation_config_path: ""
+
+# 모델들의 모듈과 각각의 체크포인트 경로 설정 -> 이는 앙상블 모델을 구성하는데 사용가능
 models:
-  - module: "src.plmodules.mnist_cnn_module.MNISTModelModule"
-    checkpoint: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/MNIST/ozrn0unf/checkpoints/epoch=6-step=5250.ckpt"
-  - module: "src.plmodules.mnist_module.MNISTModelModule"
-    checkpoint: "/Users/seonghyunpark/Desktop/BoostCamp_Baseline/MNIST/fvrvh3mm/checkpoints/epoch=22-step=17250.ckpt"
+  - module: ""
+    checkpoint: ""
+  - module: ""
+    checkpoint: ""
 
+#개별모델에 대한 설정을 정의
 model:
+  name:
+  num_classes:
+  pretrained:
 
 trainer:
   accelerator: gpu
