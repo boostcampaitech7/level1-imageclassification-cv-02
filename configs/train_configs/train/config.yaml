@@ -4,6 +4,9 @@ model_module: "src.plmodules.sketch_module.SketchModelModule"
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
+sweep_path: "configs/train_configs/train/sweep.yaml"
+use_sweep: False
+
 model:
   model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
   num_classes: 500
@@ -21,7 +24,7 @@ scheduler:
     gamma: 0.7
 
 trainer:
-  max_epochs: 10
+  max_epochs: 6
   accelerator: gpu
   devices: 1
 
@@ -32,9 +35,9 @@ callbacks:
     mode: max
   early_stopping:
     monitor: val_acc
-    patience: 5
+    patience: 3
     mode: max
 
-wandb_name: "eva02-large-sweep"
+wandb_name: "eva02-large-sweep-(2)"
 
 seed: 42  # 시드 값 추가

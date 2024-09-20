@@ -11,11 +11,6 @@ from pytorch_lightning.loggers import WandbLogger
 def main(config_path, use_wandb=True, sweep_dict=None):
     # YAML 파일 로드
     config = OmegaConf.load(config_path)
-    
-    if sweep_dict is not None: # use sweep
-        config = OmegaConf.merge(config, OmegaConf.create(sweep_dict))
-        # config = OmegaConf.to_container(config, resolve=True)
-    
     print(config)
 
     # 데이터 모듈 동적 임포트
@@ -79,19 +74,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config", type=str, required=True, help="Path to the config file"
     )
-    parser.add_argument(
-        "--sweep", type=str, required=True, help="Path to the sweep config file"
-    )
     parser.add_argument("--use_wandb", action="store_true", help="Use Wandb logger")
     args = parser.parse_args()
 
-    if args.use_wandb:
-        # wandb.init() # wandb initialization
-        sweep_config = OmegaConf.load(args.sweep)
-        assert isinstance(sweep_config, dict) is False
-        if isinstance(sweep_config, dict) is False:  # Only convert if needed
-            sweep_dict = OmegaConf.to_container(sweep_config, resolve=True)
-        sweep_id = wandb.sweep(sweep_dict, project="Sketch")
-        wandb.agent(sweep_id, main(args.config, args.use_wandb, sweep_dict), count=5)
-    else:
-        main(args.config, args.use_wandb)
+    main(args.config, args.use_wandb)
