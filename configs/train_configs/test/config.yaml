@@ -1,0 +1,19 @@
+data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
+model_module: "src.plmodules.sketch_module.SketchModelModule"
+
+data_config_path: "configs/data_configs/sketch_config.yaml"
+augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
+checkpoint_path: "Sketch/ys9amgpe/checkpoints/epoch=5-step=2256.ckpt"
+
+name: "eva02_large_patch14_448_epoch=5_minsol_(2)"
+
+model:
+  model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
+  num_classes: 500
+  pretrained: True
+
+trainer:
+  accelerator: gpu
+  devices: 1
+
+seed: 42  # 시드 값 추가
