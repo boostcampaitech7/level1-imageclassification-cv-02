@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import wandb
 
 import pytorch_lightning as pl
 from omegaconf import OmegaConf
@@ -7,7 +8,7 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 
-def main(config_path, use_wandb=True):
+def main(config_path, use_wandb=True, sweep_dict=None):
     # YAML 파일 로드
     config = OmegaConf.load(config_path)
     print(config)
@@ -38,7 +39,7 @@ def main(config_path, use_wandb=True):
     # Wandb 로거 설정 (use_wandb 옵션에 따라)
     logger = None
     if use_wandb:
-        logger = WandbLogger(project="Sketch", name="Sketch_Test")
+        logger = WandbLogger(project="Sketch", name=config.wandb_name)
 
     # 콜백 설정
     checkpoint_callback = ModelCheckpoint(
@@ -57,7 +58,7 @@ def main(config_path, use_wandb=True):
         **config.trainer,
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=logger,
-        precision=16,
+        precision='16-mixed',
     )
 
     # 훈련 시작
@@ -75,4 +76,5 @@ if __name__ == "__main__":
     )
     parser.add_argument("--use_wandb", action="store_true", help="Use Wandb logger")
     args = parser.parse_args()
+
     main(args.config, args.use_wandb)

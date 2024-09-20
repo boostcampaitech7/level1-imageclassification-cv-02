@@ -1,0 +1,27 @@
+program: train.py
+method: 'bayes'  # Hyperparameter search strategy
+command:
+  - competition1/bin/python  # Python 실행 경로
+  - ${program}  # train.py 실행
+  - --config=configs/train_configs/train/config.yaml  # config 파일 경로
+  - --use_wandb
+
+metric:
+  name: 'val_acc'  # Metric to optimize
+  goal: 'maximize'
+
+parameters:
+  learning_rate:
+    distribution: 'uniform'
+    min: 2e-6
+    max: 1e-3
+  lr_scheduler:
+    values: ['StepLR', 'CosineAnnealingLR']
+  step_size:
+    distribution: 'int_uniform'
+    min: 1
+    max: 3
+  gamma:
+    distribution: 'uniform'
+    min: 0.5
+    max: 0.9
