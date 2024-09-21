@@ -4,7 +4,9 @@
 
 ## git 설치
 ```bash
-apt update
+apt-get update -y
+apt-get install -y libgl1-mesa-glx #OpenGL (Open Graphics Library) 그래픽 API를 지원하는 라이브러리
+apt-get install -y libglib2.0-0 #GLib 라이브러리는 다양한 시스템 및 플랫폼에서 사용되는 기본 라이브러리 
 apt install -y git
 git clone https://github.com/boostcampaitech7/level1-imageclassification-cv-02.git
 cd level1-imageclassification-cv-02
@@ -14,7 +16,12 @@ cd level1-imageclassification-cv-02
 ```bash
 apt-get install wget
 wget https://aistages-api-public-prod.s3.amazonaws.com/app/Competitions/000307/data/data.tar.gz
-tar -zxvf data.tar.gz
+tar -zxvf data.tar.gz 
+rm -rf data.tar.gz # data 압축 다 풀었으면 .gz 파일 삭제.
+cd data #dataset 폴더에 들어가줌
+find . -name '._*' -type f -delete # ._으로 시작하는 파일 지워줌(숨김파일이거나 캐싱파일이라 필요없음.)
+cd .. # dataset 폴더에서 나오고 level1폴더로 다시 회귀.
+rm -rf ._data
 ```
 
 ## Python package 설치
@@ -47,13 +54,16 @@ pip install -r requirements.txt
 ### Train
 - **config 파일 수정 잘 해서 돌리기**
 ```bash
-python train.py --config configs/train_configs/train/config.yaml
+python src/scripts/train.py --config configs/train_configs/train/config.yaml
 ```
+만약에 `No module names 'src'`라고 뜬다면
+홈 디렉토리에 `.bashrc`만들고 그 안에 `export PYTHONPATH=$(pwd)`라고  입력후 저장하면 됨.
 
 ### Test (Inference)
 - **config 파일 수정 잘 해서 돌리기**
 ```bash
-python test.py --config configs/train_configs/test/config.yaml
+
+python tests/test.py --config configs/train_configs/test/config.yaml
 ```
 
 ## 프로젝트 구조

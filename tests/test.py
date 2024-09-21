@@ -1,15 +1,37 @@
 import argparse
-
+import os
+import glob
 import pytorch_lightning as pl
 from omegaconf import OmegaConf
 
+
 from src.data.custom_datamodules.sketch_datamodule import SketchDataModule
 from src.plmodules.sketch_module import SketchModelModule
+
+def get_latest_checkpoint(checkpoint_dir):
+    checkpoint_paths = []
+    for root, dirs, files in os.walk(checkpoint_dir):
+        for file in files:
+            if file.endswith('.ckpt'):
+                checkpoint_paths.append(os.path.join(root, file))
+    if not checkpoint_paths:
+        return None
+    return max(checkpoint_paths, key=os.path.getctime)
 
 def main(config_path, checkpoint_path=None):
     # YAML 파일 로드
     config = OmegaConf.load(config_path)
     print(config)
+
+     # 최신 체크포인트 경로 업데이트
+    if checkpoint_path is None:
+        checkpoint_dir = config.checkpoint_path
+        checkpoint_path = get_latest_checkpoint(checkpoint_dir)
+    
+    if checkpoint_path is None:
+        raise ValueError("No checkpoint found. Please specify a valid checkpoint path.")
+
+    print(f"Using checkpoint: {checkpoint_path}")
 
     # 데이터 모듈 설정
     data_config_path = config.data_config_path
@@ -30,19 +52,21 @@ def main(config_path, checkpoint_path=None):
         accelerator=config.trainer.accelerator, 
         devices=config.trainer.devices,
         precision=16,
+        default_root_dir=config.trainer.default_root_dir # output 폴더로 저장하게끔 
     )
 
     # 평가 시작
     trainer.test(model, datamodule=data_module)
 
     # csv 파일에 output 저장하기
+    output_path = f"{config.trainer.default_root_dir}/{config.name}.csv"  # output 폴더에 저장
     test_info = data_module.test_info
     predictions = model.test_predictions
     test_info['target'] = predictions
     test_info = test_info.reset_index().rename(columns={"index": "ID"})
 
-    test_info.to_csv("./" + config.name + '.csv', index=False)
-
+    # test_info.to_csv("./" + config.name + '.csv', index=False)
+    test_info.to_csv(output_path, index=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

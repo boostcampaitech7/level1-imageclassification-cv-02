@@ -3,9 +3,10 @@ model_module: "src.plmodules.sketch_module.SketchModelModule"
 
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
-checkpoint_path: "Sketch/ys9amgpe/checkpoints/epoch=5-step=2256.ckpt"
+# checkpoint_path: "Sketch/ys9amgpe/checkpoints/epoch=5-step=2256.ckpt"
+checkpoint_path: "output/lightning_logs"  # 초기값 설정
 
-name: "eva02_large_patch14_448_epoch=5_minsol_(2)"
+name: "eva02_"
 
 model:
   model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
@@ -15,5 +16,6 @@ model:
 trainer:
   accelerator: gpu
   devices: 1
+  default_root_dir: "output"  # outputs 폴더에 저장합니다.
 
 seed: 42  # 시드 값 추가
