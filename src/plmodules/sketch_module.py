@@ -90,13 +90,39 @@ class SketchModelModule(pl.LightningModule):
         return y_hat
 
     def configure_optimizers(self):
-        optimizer_class = getattr(torch.optim, self.config.optimizer.name)
-        optimizer = optimizer_class(self.parameters(), **self.config.optimizer.params)
-        if hasattr(self.config, "scheduler"):
-            scheduler_class = getattr(
-                torch.optim.lr_scheduler, self.config.scheduler.name
-            )
-            scheduler = scheduler_class(optimizer, **self.config.scheduler.params)
+        lr = self.hparams.get("learning_rate", 2e-4) # sweep으로 lr 조정. / default: 2e-4
+        optimizer_class = torch.optim.Adam
+
+        # 옵티마이저 생성
+        optimizer = optimizer_class(self.parameters(), lr=lr)
+
+        if self.config.use_sweep is True: # sweep 사용 시
+            # 스케줄러 설정
+            if self.hparams.get("lr_scheduler") == 'StepLR':
+                step_size = self.hparams.get("step_size", 1)  # Sweep에서 step_size 받기
+                gamma = self.hparams.get("gamma", 0.7)
+                scheduler = torch.optim.lr_scheduler.StepLR(
+                    optimizer, 
+                    step_size=step_size,
+                    gamma=gamma
+                )
+            elif self.hparams.get("lr_scheduler") == 'CosineAnnealingLR':
+                scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                    optimizer, 
+                    T_max=self.trainer.max_epochs  # CosineAnnealing 스케줄러의 최대 에폭 설정
+                )
+            else:
+                scheduler = None
+        else: # sweep 사용 X
+            if hasattr(self.config, "scheduler"):
+                scheduler_class = getattr(
+                    torch.optim.lr_scheduler, self.config.scheduler.name
+                )
+                scheduler = scheduler_class(optimizer, **self.config.scheduler.params)
+            else:
+                scheduler = None
+
+        if scheduler:
             return [optimizer], [scheduler]
         else:
-            return optimizer
+            return optimizer    
