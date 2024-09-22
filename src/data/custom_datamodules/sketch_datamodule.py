@@ -27,16 +27,27 @@ class SketchDataModule(BaseDataModule):
             train_transforms = self._get_augmentation_transforms()
         else:
             train_transforms = transforms.Compose(
-                [transforms.Resize((448, 448)),
-                 transforms.ToTensor(), 
-                 transforms.Normalize((0.1307,), (0.3081,))]
+                [
+                    transforms.Resize((448, 448)),
+                    transforms.ToTensor(), 
+                    transforms.Normalize(
+                        mean=[0.8611978789783442, 0.8611010053211972, 0.8608145509328503],
+                        std=[0.21610660286926384, 0.21640406141733287, 0.21586861291291237]
+                        ),
+                    transforms.Grayscale(num_output_channels=3)
+                ]
             )
 
         test_transforms = transforms.Compose(
             [
                 transforms.Resize((448, 448)),
                 transforms.ToTensor(), 
-                transforms.Normalize((0.1307,), (0.3081,))]
+                transforms.Normalize(
+                    mean=[0.8611978789783442, 0.8611010053211972, 0.8608145509328503],
+                    std=[0.21610660286926384, 0.21640406141733287, 0.21586861291291237]
+                    ),
+                transforms.Grayscale(num_output_channels=3)
+            ]
         )
 
         # Load datasets
