@@ -2,8 +2,8 @@ import argparse
 import os
 import glob
 import pytorch_lightning as pl
+import yaml
 from omegaconf import OmegaConf
-
 
 from src.data.custom_datamodules.sketch_datamodule import SketchDataModule
 from src.plmodules.sketch_module import SketchModelModule
@@ -23,7 +23,16 @@ def main(config_path, checkpoint_path=None):
     config = OmegaConf.load(config_path)
     print(config)
 
-     # 최신 체크포인트 경로 업데이트
+    # model_name에서 '.' 이전 부분 추출하여 name 필드 설정
+    model_name = config.model.model_name
+    name_prefix = model_name.split('.')[0]
+    
+    if not config.get('name'):  # name 필드가 비어있다면 설정
+        config.name = name_prefix
+    
+    print(f"Name from config: {config.name}")
+
+    # 최신 체크포인트 경로 업데이트
     if checkpoint_path is None:
         checkpoint_dir = config.checkpoint_path
         checkpoint_path = get_latest_checkpoint(checkpoint_dir)
@@ -67,6 +76,9 @@ def main(config_path, checkpoint_path=None):
 
     # test_info.to_csv("./" + config.name + '.csv', index=False)
     test_info.to_csv(output_path, index=False)
+
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

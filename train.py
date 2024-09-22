@@ -1,8 +1,6 @@
 import argparse
 import importlib
 import wandb
-
-
 import os
 import glob
 
@@ -12,24 +10,12 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 
-def get_latest_checkpoint(checkpoint_dir):
-    # checkpoint_dir에 있는 모든 체크포인트 파일 경로를 가져옵니다.
-    checkpoint_paths = glob.glob(os.path.join(checkpoint_dir, '*.ckpt'))
-    if not checkpoint_paths:
-        return None  # 체크포인트가 없으면 None 반환
-    latest_checkpoint = max(checkpoint_paths, key=os.path.getctime)  # 가장 최근에 생성된 체크포인트 선택
-    return latest_checkpoint
 
 def main(config_path, use_wandb=True, sweep_dict=None):
     # YAML 파일 로드
     config = OmegaConf.load(config_path)
     print(config)
 
-    # 체크포인트 경로 설정
-    checkpoint_dir = os.path.join(config.trainer.default_root_dir, "lightning_logs")
-    latest_checkpoint = get_latest_checkpoint(checkpoint_dir)
-    if latest_checkpoint:
-        config.checkpoint_path = latest_checkpoint  # 최신 체크포인트 경로로 설정
 
     # 데이터 모듈 동적 임포트
     data_module_path, data_module_class = config.data_module.rsplit(".", 1)

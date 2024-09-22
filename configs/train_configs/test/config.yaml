@@ -6,7 +6,7 @@ augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml
 # checkpoint_path: "Sketch/ys9amgpe/checkpoints/epoch=5-step=2256.ckpt"
 checkpoint_path: "output/lightning_logs"  # 초기값 설정
 
-name: "eva02_"
+name: "" #파이썬에서 자동으로 설정할 예정.yaml은 직렬화방식이라 동적으로 동작x
 
 model:
   model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
