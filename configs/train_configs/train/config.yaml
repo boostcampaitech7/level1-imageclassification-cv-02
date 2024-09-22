@@ -24,9 +24,10 @@ scheduler:
     gamma: 0.7
 
 trainer:
-  max_epochs: 6
+  max_epochs: 1
   accelerator: gpu
   devices: 1
+  default_root_dir: "output" #output 폴더에 추가.
 
 callbacks:
   model_checkpoint:

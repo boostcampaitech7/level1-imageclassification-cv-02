@@ -1,6 +1,8 @@
 import argparse
 import importlib
 import wandb
+import os
+import glob
 
 import pytorch_lightning as pl
 from omegaconf import OmegaConf
@@ -8,10 +10,12 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 
+
 def main(config_path, use_wandb=True, sweep_dict=None):
     # YAML 파일 로드
     config = OmegaConf.load(config_path)
     print(config)
+
 
     # 데이터 모듈 동적 임포트
     data_module_path, data_module_class = config.data_module.rsplit(".", 1)
@@ -59,6 +63,7 @@ def main(config_path, use_wandb=True, sweep_dict=None):
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=logger,
         precision='16-mixed',
+        # default_root_dir=config.trainer.default_root_dir #output 에 저장으로 변경.
     )
 
     # 훈련 시작

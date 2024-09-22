@@ -13,3 +13,5 @@ Sketch/
 .dvcignore
 .flake8
 .DS_Store
+output/*
+!output/

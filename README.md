@@ -4,7 +4,9 @@
 
 ## git 설치
 ```bash
-apt update
+apt-get update -y
+apt-get install -y libgl1-mesa-glx #OpenGL (Open Graphics Library) 그래픽 API를 지원하는 라이브러리
+apt-get install -y libglib2.0-0 #GLib 라이브러리는 다양한 시스템 및 플랫폼에서 사용되는 기본 라이브러리 
 apt install -y git
 git clone https://github.com/boostcampaitech7/level1-imageclassification-cv-02.git
 cd level1-imageclassification-cv-02
@@ -14,7 +16,12 @@ cd level1-imageclassification-cv-02
 ```bash
 apt-get install wget
 wget https://aistages-api-public-prod.s3.amazonaws.com/app/Competitions/000307/data/data.tar.gz
-tar -zxvf data.tar.gz
+tar -zxvf data.tar.gz 
+rm -rf data.tar.gz # data 압축 다 풀었으면 .gz 파일 삭제.
+cd data #dataset 폴더에 들어가줌
+find . -name '._*' -type f -delete # ._으로 시작하는 파일 지워줌(숨김파일이거나 캐싱파일이라 필요없음.)
+cd .. # dataset 폴더에서 나오고 level1폴더로 다시 회귀.
+rm -rf ._data #._data라는 캐싱파일 삭제.
 ```
 
 ## Python package 설치
@@ -41,7 +48,9 @@ poetry install
 ```bash
 pip install -r requirements.txt
 ```
-
+## train.py, test.py  돌리기전에 !!
+먼저 Wandb https://kr.wandb.ai/ 에 들어가서 로그인하고  👉 `train.py`랑 `test.py`돌려야함! 안 그러면 
+te
 
 ## 사용 방법
 ### Train
@@ -49,87 +58,68 @@ pip install -r requirements.txt
 ```bash
 python train.py --config configs/train_configs/train/config.yaml
 ```
+만약에 `No module names 'src'`라고 뜬다면(현재 경로를 제대로 입력받지 않은것이니,)
+홈 디렉토리에 `.bashrc`만들고 그 안에 `export PYTHONPATH=$(pwd)`라고  입력후 저장하면 됨.
 
 ### Test (Inference)
 - **config 파일 수정 잘 해서 돌리기**
 ```bash
+
 python test.py --config configs/train_configs/test/config.yaml
 ```
 
 ## 프로젝트 구조
 ```
 .
-├── configs
-│   ├── augmentation_configs
-│   │   └── sketch_augmentation.yaml
-│   ├── data_configs
-│   │   └── sketch_config.yaml
-│   ├── ensemble_configs
-│   │   └── ensemble_config.yaml
-│   └── train_configs
-│       ├── test
-│       └── train
-├── output # 본인의 결과물 csv 여기다가 저장하면 됨. 
-├── README.md
-├── requirements.txt 
-├── settings # poerty 의존성관리 및 License 등을 넣습니다.
-│   ├── LICENSE
-│   ├── pyproject.toml
-│   └── pytest.ini
-├── src # dataset, train에 필요한 요소들(loss, optimizer, scheduler,model 등)이 있습니다.
-│   ├── data
-│   │   ├── base_datamodule.py
-│   │   ├── collate_fns
-│   │   ├── custom_datamodules
-│   │   ├── datasets
-│   │   └── __init__.py
-│   ├── ensemble
-│   │   ├── bagging_ensemble.py
-│   │   ├── base_ensemble.py
-│   │   ├── __init__.py
-│   │   ├── stacking_ensemble.py
-│   │   └── voting_ensemble.py
-│   ├── experiments
-│   │   ├── experiment_config.py
-│   │   ├── __init__.py
-│   │   ├── run_ensemble.py
-│   │   └── run_experiment.py
-│   ├── loss_functions
-│   │   ├── base_loss.py
-│   │   ├── custom_losses
-│   │   └── __init__.py
-│   ├── models
-│   │   ├── __init__.py
-│   │   └── timm_model.py
-│   ├── optimizers
-│   │   ├── base_optimizer.py
-│   │   ├── custom_optimizers
-│   │   └── __init__.py
-│   ├── plmodules
-│   │   ├── __init__.py
-│   │   └── sketch_module.py
-│   ├── scheduler
-│   │   ├── base_scheduler.py
-│   │   ├── custom_scheduler
-│   │   └── __init__.py
-│   ├── scripts
-│   │   ├── predict.py
-│   │   └── train.py
-│   └── utils
-│       ├── data_utils.py
-│       ├── evaluation_utils.py
-│       ├── __init__.py
-│       └── model_utils.py
-└── tests # test할 수 있습니다.
-    ├── conftest.py
-    ├── __init__.py
-    ├── test_datamodules.py
-    ├── test_ensemble_predict.py
-    ├── test_ensembles.py
-    ├── test_losses.py
-    ├── test_models.py
-    ├── test_optimizers.py
-    └── test.py
+|-- README.md
+|-- competition1
+|   |-- bin
+|   |-- include
+|   |-- lib
+|   |-- lib64 -> lib
+|   |-- pyvenv.cfg
+|   `-- share
+|-- configs
+|   |-- augmentation_configs
+|   |-- data_configs
+|   |-- ensemble_configs
+|   `-- train_configs
+|-- data
+|   |-- sample_submission.csv
+|   |-- test
+|   |-- test.csv
+|   |-- train
+|   `-- train.csv
+|-- output
+|   |-- eva02_large_patch14_448.csv
+|   `-- lightning_logs
+|-- poetry.lock
+|-- pyproject.toml
+|-- pytest.ini
+|-- requirements.txt
+|-- settings
+|   `-- LICENSE
+|-- src
+|   |-- data
+|   |-- ensemble
+|   |-- experiments
+|   |-- loss_functions
+|   |-- models
+|   |-- optimizers
+|   |-- plmodules
+|   |-- scheduler
+|   `-- utils
+|-- test.py
+|-- tests
+|   |-- __init__.py
+|   |-- conftest.py
+|   |-- test_datamodules.py
+|   |-- test_ensemble_predict.py
+|   |-- test_ensembles.py
+|   |-- test_losses.py
+|   |-- test_models.py
+|   `-- test_optimizers.py
+`-- train.py
 ```
 
 ### 주요 디렉토리 설명
@@ -142,7 +132,7 @@ python test.py --config configs/train_configs/test/config.yaml
 
 - `settings`
 프로젝트의 의존성 관리와 라이선스 관련 파일들이 위치한 디렉토리입니다.
-Poetry를 사용한 의존성 관리 파일(pyproject.toml)과 라이선스 파일이 포함되어 있습니다.
+
 
 - `src`
 프로젝트의 핵심 소스 코드가 위치한 디렉토리입니다.
@@ -177,8 +167,7 @@ PyTorch Lightning 모듈들이 위치합니다. 스케치 모듈 등 특정 태�
 - `scheduler`
 학습률 스케줄러 관련 모듈들이 위치합니다. 기본 스케줄러와 사용자 정의 스케줄러들이 포함되어 있습니다.
 
-- `scripts`
-학습 및 예측을 위한 스크립트 파일들이 위치합니다.
+
 
 - `utils`
 프로젝트 전반에서 사용되는 유틸리티 함수들이 위치합니다. 데이터, 평가, 모델 관련 유틸리티 함수들이 포함되어 있습니다.
