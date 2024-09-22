@@ -46,7 +46,7 @@ poetry install
 ```
 - 추가로 설치한 패키지들도 있어서, pip도 해주기
 ```bash
-pip install -r settings/requirements.txt #requirements.txt가 settings에 있음. m
+pip install -r requirements.txt
 ```
 ## train.py, test.py  돌리기전에 !!
 먼저 Wandb https://kr.wandb.ai/ 에 들어가서 로그인하고  👉 `train.py`랑 `test.py`돌려야함! 안 그러면 
@@ -71,6 +71,7 @@ python test.py --config configs/train_configs/test/config.yaml
 ## 프로젝트 구조
 ```
 .
+|-- README.md
 |-- competition1
 |   |-- bin
 |   |-- include
@@ -89,16 +90,16 @@ python test.py --config configs/train_configs/test/config.yaml
 |   |-- test.csv
 |   |-- train
 |   `-- train.csv
-|-- output # 본인의 결과물 csv, checkpoint, 가 자동으로 저장됨
+|-- output
+|   |-- eva02_large_patch14_448.csv
 |   `-- lightning_logs
 |-- poetry.lock
 |-- pyproject.toml
 |-- pytest.ini
+|-- requirements.txt
 |-- settings
-|   |-- LICENSE
-|   |-- README.md
-|   `-- requirements.txt
-|-- src  # dataset, train에 필요한 요소들(loss, optimizer, scheduler,model 등)이 있습니다.
+|   `-- LICENSE
+|-- src
 |   |-- data
 |   |-- ensemble
 |   |-- experiments
@@ -131,7 +132,7 @@ python test.py --config configs/train_configs/test/config.yaml
 
 - `settings`
 프로젝트의 의존성 관리와 라이선스 관련 파일들이 위치한 디렉토리입니다.
-Poetry를 사용한 의존성 관리 파일(pyproject.toml)과 라이선스 파일이 포함되어 있습니다.
+
 
 - `src`
 프로젝트의 핵심 소스 코드가 위치한 디렉토리입니다.
