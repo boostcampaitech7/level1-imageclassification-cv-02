@@ -48,7 +48,9 @@ poetry install
 ```bash
 pip install -r settings/requirements.txt #requirements.txt가 settings에 있음. m
 ```
-
+## train.py, test.py  돌리기전에 !!
+먼저 Wandb https://kr.wandb.ai/ 에 들어가서 로그인하고  👉 `train.py`랑 `test.py`돌려야함! 안 그러면 
+te
 
 ## 사용 방법
 ### Train

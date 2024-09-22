@@ -3,8 +3,7 @@ model_module: "src.plmodules.sketch_module.SketchModelModule"
 
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
-# checkpoint_path: "Sketch/ys9amgpe/checkpoints/epoch=5-step=2256.ckpt"
-checkpoint_path: "output/lightning_logs"  # 초기값 설정
+checkpoint_path: ""  # wanbd에서 자동으로 checkpoint_path  설정됨. 따라서 빈칸.
 
 name: "" #파이썬에서 자동으로 설정할 예정.yaml은 직렬화방식이라 동적으로 동작x
 

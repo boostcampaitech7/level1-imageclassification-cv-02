@@ -8,15 +8,7 @@ from omegaconf import OmegaConf
 from src.data.custom_datamodules.sketch_datamodule import SketchDataModule
 from src.plmodules.sketch_module import SketchModelModule
 
-def get_latest_checkpoint(checkpoint_dir):
-    checkpoint_paths = []
-    for root, dirs, files in os.walk(checkpoint_dir):
-        for file in files:
-            if file.endswith('.ckpt'):
-                checkpoint_paths.append(os.path.join(root, file))
-    if not checkpoint_paths:
-        return None
-    return max(checkpoint_paths, key=os.path.getctime)
+
 
 def main(config_path, checkpoint_path=None):
     # YAML 파일 로드
@@ -29,18 +21,7 @@ def main(config_path, checkpoint_path=None):
     
     if not config.get('name'):  # name 필드가 비어있다면 설정
         config.name = name_prefix
-    
-    print(f"Name from config: {config.name}")
 
-    # 최신 체크포인트 경로 업데이트
-    if checkpoint_path is None:
-        checkpoint_dir = config.checkpoint_path
-        checkpoint_path = get_latest_checkpoint(checkpoint_dir)
-    
-    if checkpoint_path is None:
-        raise ValueError("No checkpoint found. Please specify a valid checkpoint path.")
-
-    print(f"Using checkpoint: {checkpoint_path}")
 
     # 데이터 모듈 설정
     data_config_path = config.data_config_path
