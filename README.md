@@ -49,8 +49,17 @@ poetry install
 pip install -r requirements.txt
 ```
 ## train.py, test.py  돌리기전에 !!
-먼저 Wandb https://kr.wandb.ai/ 에 들어가서 로그인하고  👉 `train.py`랑 `test.py`돌려야함! 안 그러면 
-te
+먼저 Wandb https://kr.wandb.ai/ 에 들어가서 회원가입하고 본인 로그인해야합니다.
+
+따라서 `pip install -r requirements.txt`를 하면 `wandb`가 다 설치되어 있을텐데, 이후에 
+terminal에서 `wandb login` 치고 나서 본인의 API 입력하면 됨. 
+그후 `wandb init`하고  train.py에
+```python
+import wandb
+wandb.init(project ="") 
+```
+<- 이렇게 뜰것입니다. 이후 `train.py` 에 복붙해서 저장후 training 시키면 됩니다.  
+
 
 ## 사용 방법
 ### Train
@@ -171,3 +180,98 @@ PyTorch Lightning 모듈들이 위치합니다. 스케치 모듈 등 특정 태�
 
 - `utils`
 프로젝트 전반에서 사용되는 유틸리티 함수들이 위치합니다. 데이터, 평가, 모델 관련 유틸리티 함수들이 포함되어 있습니다.
+
+### + checkpoint_path를 일일히 지정하기가 귀찮다면?
+- `test.py`의 코드를 지우고 밑에 코드 복붙.
+-> 하지만 이는 최신 체크포인트롤 이용해 test하는 것일뿐 validation_test가 가장 높은 것을 이용한게 아니므로 최적의 모델이 아닐 수 있음.
+```python
+import argparse
+import os
+import pytorch_lightning as pl
+from omegaconf import OmegaConf
+
+from src.data.custom_datamodules.sketch_datamodule import SketchDataModule
+from src.plmodules.sketch_module import SketchModelModule
+
+
+def get_latest_checkpoint(checkpoint_dir):
+    checkpoint_paths = []
+    for root, dirs, files in os.walk(checkpoint_dir):
+        for file in files:
+            if file.endswith('.ckpt'):
+                checkpoint_paths.append(os.path.join(root, file))
+    if not checkpoint_paths:
+        return None
+    return max(checkpoint_paths, key=os.path.getctime)
+
+
+def main(config_path, checkpoint_path=None):
+    # YAML 파일 로드
+    config = OmegaConf.load(config_path)
+    
+    # model_name에서 '.' 이전 부분 추출하여 name 필드 설정
+    model_name = config.model.model_name
+    name_prefix = model_name.split('.')[0]
+    
+    if not config.get('name'):  # name 필드가 비어있다면 설정
+        config.name = name_prefix
+    
+    print(f"Name from config: {config.name}")
+
+    # 최신 체크포인트 경로 업데이트
+    if checkpoint_path is None:
+        checkpoint_dir = config.checkpoint_path
+        checkpoint_path = get_latest_checkpoint(checkpoint_dir)
+    
+    if checkpoint_path is None:
+        raise ValueError("No checkpoint found. Please specify a valid checkpoint path.")
+
+    print(f"Using checkpoint: {checkpoint_path}")
+
+    # 데이터 모듈 설정
+    data_config_path = config.data_config_path
+    augmentation_config_path = config.augmentation_config_path
+    seed = config.get("seed", 42)  # 시드 값을 설정 파일에서 읽어오거나 기본값 42 사용
+    data_module = SketchDataModule(data_config_path, augmentation_config_path, seed)
+    data_module.setup()
+
+    # 모델 설정
+    model = SketchModelModule.load_from_checkpoint(checkpoint_path, config=config)
+
+    # 트레이너 설정
+    trainer = pl.Trainer(
+        accelerator=config.trainer.accelerator,
+        devices=config.trainer.devices,
+        precision=16,
+        default_root_dir=config.trainer.default_root_dir  # output 폴더로 저장하게끔
+    )
+
+    # 평가 시작
+    trainer.test(model, datamodule=data_module)
+
+    # csv 파일에 output 저장하기
+    output_path = f"{config.trainer.default_root_dir}/{config.name}.csv"  # output 폴더에 저장
+    test_info = data_module.test_info
+    predictions = model.test_predictions
+    test_info['target'] = predictions
+    test_info = test_info.reset_index().rename(columns={"index": "ID"})
+
+    # 결과를 csv 파일로 저장
+    test_info.to_csv(output_path, index=False)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Evaluate a model with PyTorch Lightning"
+    )
+    parser.add_argument(
+        "--config", type=str, required=True, help="Path to the config file"
+    )
+    parser.add_argument(
+        "--checkpoint", type=str, required=False, help="Path to the model checkpoint"
+    )
+    args = parser.parse_args()
+
+    main(args.config, args.checkpoint)
+
+```
