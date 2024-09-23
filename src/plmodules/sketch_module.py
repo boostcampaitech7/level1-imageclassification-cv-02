@@ -19,7 +19,10 @@ class SketchModelModule(pl.LightningModule):
         self.model = TimmModel(
             model_name=config.model.model_name, 
             num_classes=config.model.num_classes,
-            pretrained=config.model.pretrained
+            pretrained=config.model.pretrained,
+            dropout_prob=self.hparams.get('dropout_prob', 0.3),
+            drop_path_prob=self.hparams.get('drop_path_prob', 0.2),
+            attn_path_prob=self.hparams.get('attn_path_prob', 0.1)
         )
         print(self.model)
         self.precision = MulticlassPrecision(num_classes=config.model.num_classes, average="macro")
