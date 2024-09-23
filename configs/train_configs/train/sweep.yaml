@@ -25,3 +25,7 @@ parameters:
     distribution: 'uniform'
     min: 0.5
     max: 0.9
+  num_ops:
+    values: [2, 3]
+  magnitude:
+    values: [7, 9, 11]

@@ -1,16 +1,11 @@
 # configs/augmentation_configs/mnist_augmentation.yaml
 augmentation:
-  use_augmentation: false
+  use_augmentation: True
   transforms:
-    - name: RandomRotation
+    # - name: ColorJitter
+    #   params:
+    #     brightness: 0.5
+    - name: RandAugment
       params:
-        degrees: 10
-    - name: RandomAffine
-      params:
-        degrees: 0
-        translate: [0.1, 0.1]
-        scale: [0.9, 1.1]
-    - name: Normalize
-      params:
-        mean: [0.1307]
-        std: [0.3081]
+        num_ops: 2
+        magnitude: 9

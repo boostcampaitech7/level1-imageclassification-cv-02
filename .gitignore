@@ -15,3 +15,4 @@ Sketch/
 .DS_Store
 output/*
 !output/
+eda.ipynb

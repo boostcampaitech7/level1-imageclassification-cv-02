@@ -24,7 +24,7 @@ scheduler:
     gamma: 0.7
 
 trainer:
-  max_epochs: 1
+  max_epochs: 13
   accelerator: gpu
   devices: 1
   default_root_dir: "output" #output 폴더에 추가.
@@ -36,9 +36,9 @@ callbacks:
     mode: max
   early_stopping:
     monitor: val_acc
-    patience: 3
+    patience: 2
     mode: max
 
-wandb_name: "eva02-large-sweep-(2)"
+wandb_name: "eva02-randaug"
 
 seed: 42  # 시드 값 추가
