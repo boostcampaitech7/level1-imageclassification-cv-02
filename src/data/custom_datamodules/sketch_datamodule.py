@@ -27,16 +27,26 @@ class SketchDataModule(BaseDataModule):
             train_transforms = self._get_augmentation_transforms()
         else:
             train_transforms = transforms.Compose(
-                [transforms.Resize((448, 448)),
-                 transforms.ToTensor(), 
-                 transforms.Normalize((0.1307,), (0.3081,))]
+                [
+                    transforms.Resize((448, 448)),
+                    transforms.RandAugment(),
+                    transforms.ToTensor(), 
+                    transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]
+                    )
+                ]
             )
 
         test_transforms = transforms.Compose(
             [
                 transforms.Resize((448, 448)),
                 transforms.ToTensor(), 
-                transforms.Normalize((0.1307,), (0.3081,))]
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                )
+            ]
         )
 
         # Load datasets
@@ -96,11 +106,29 @@ class SketchDataModule(BaseDataModule):
 
     def _get_augmentation_transforms(self):
         transform_list = [
-            transforms.Resize((448, 448)),
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,)),
+            transforms.Resize((448, 448))
         ]
         for transform_config in self.augmentation_config["augmentation"]["transforms"]:
             transform_class = getattr(transforms, transform_config["name"])
-            transform_list.append(transform_class(**transform_config["params"]))
+            # transform_list.append(transform_class)
+            if transform_config["name"] == "RandAugment":
+                transform_list.append(
+                    transform_class(
+                        num_ops=self.hparams.get("num_ops", 2),
+                        magnitude=self.hparams.get("magnitude", 9)
+                    )
+                )
+            else:
+                transform_list.append(transform_class(**transform_config["params"]))
+         
+        transform_list.extend(
+            [
+                transforms.ToTensor(), 
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                )
+            ]
+        )   
+        print(transform_list)
         return transforms.Compose(transform_list)
