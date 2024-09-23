@@ -13,18 +13,18 @@ class TimmModel(nn.Module):
         model_name: str,
         num_classes: int,
         pretrained: bool,
-        dropout_prob: float,
+        drop_head_prob: float,
         drop_path_prob: float,
-        attn_path_prob: float,
+        attn_drop_prob: float,
     ):
         super(TimmModel, self).__init__()
         self.model = timm.create_model(
             model_name,
             pretrained=pretrained,
             num_classes=num_classes,
-            drop_rate=dropout_prob,
+            drop_rate=drop_head_prob,
             drop_path_rate=drop_path_prob,
-            attn_path_rate=attn_path_prob
+            attn_drop_rate=attn_drop_prob
         )
         # head 제외한 파라미터를 freeze
         for param in self.model.parameters():
