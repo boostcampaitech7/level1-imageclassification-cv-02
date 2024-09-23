@@ -35,6 +35,13 @@ class SketchModelModule(pl.LightningModule):
 
     def forward(self, x):
         return self.model(x)
+    
+    def on_train_epoch_start(self):
+        # This is the progressive unfreezing step.
+        current_epoch = self.trainer.current_epoch
+        if current_epoch == 5:
+            print("in epoch == 5 -> unfreeze 2 layers more!")
+            self.model.unfreeze_2_layers()
 
     def training_step(self, batch, batch_idx):
         x, y = batch

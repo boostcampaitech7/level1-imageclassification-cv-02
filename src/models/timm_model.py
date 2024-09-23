@@ -33,6 +33,11 @@ class TimmModel(nn.Module):
         for name, param in self.model.named_parameters():
             if 'blocks.20' in name or 'blocks.21' in name or 'blocks.22' in name or 'blocks.23' in name or 'head' in name:  # 마지막 2개 블록과 head freeze
                 param.requires_grad = True
+    
+    def unfreeze_2_layers(self):
+        for name, param in self.model.named_parameters():
+            if 'blocks.18' in name or 'blocks.19' in name:
+                param.requires_grad = True
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
