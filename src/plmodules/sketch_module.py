@@ -111,6 +111,19 @@ class SketchModelModule(pl.LightningModule):
                     optimizer, 
                     T_max=self.trainer.max_epochs  # CosineAnnealing 스케줄러의 최대 에폭 설정
                 )
+            elif scheduler_type == 'ReduceLROnPlateau':
+                patience = self.hparams.get("patience", 10)
+                factor = self.hparams.get("factor", 0.1)
+                scheduler = {
+                    'scheduler': torch.optim.lr_scheduler.ReduceLROnPlateau(
+                        optimizer, 
+                        patience=patience, 
+                        factor=factor
+                    ),
+                    'monitor': 'val_acc',
+                    'interval': 'epoch',
+                    'frequency': 1
+                }
             else:
                 scheduler = None
         else: # sweep 사용 X
@@ -118,11 +131,18 @@ class SketchModelModule(pl.LightningModule):
                 scheduler_class = getattr(
                     torch.optim.lr_scheduler, self.config.scheduler.name
                 )
-                scheduler = scheduler_class(optimizer, **self.config.scheduler.params)
-            else:
-                scheduler = None
+                if self.config.scheduler.name == "ReduceLROnPlateau":
+                    scheduler = {
+                        'scheduler': scheduler_class(optimizer, **self.config.scheduler.params),
+                        'monitor': 'val_acc'
+                    }
+                else:
+                    scheduler = scheduler_class(optimizer, **self.config.scheduler.params)
 
         if scheduler:
-            return [optimizer], [scheduler]
+            if isinstance(scheduler, dict):  # ReduceLROnPlateau는 딕셔너리 형태로 반환
+                return [optimizer], [scheduler]
+            else:
+                return [optimizer], [{'scheduler': scheduler}]
         else:
-            return optimizer    
+            return optimizer 
