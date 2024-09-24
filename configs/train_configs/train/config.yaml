@@ -26,9 +26,9 @@ scheduler:
 trainer:
   max_epochs: 13
   accelerator: gpu
-  devices: 4
+  devices: 1 
   default_root_dir: "output" #output 폴더에 추가.
-  strategy : "ddp"
+  # strategy : "ddp" 
 
 callbacks:
   model_checkpoint:
