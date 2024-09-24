@@ -136,6 +136,12 @@ class SketchModelModule(pl.LightningModule):
                         'scheduler': scheduler_class(optimizer, **self.config.scheduler.params),
                         'monitor': 'val_acc'
                     }
+                elif self.config.scheduler.name == "CosineAnnealingLR":
+                    scheduler = scheduler_class(
+                        optimizer, 
+                        T_max=self.config.scheduler.params.get("T_max", self.trainer.max_epochs),
+                        eta_min=self.config.scheduler.params.get("eta_min", 1e-6)
+                    )
                 else:
                     scheduler = scheduler_class(optimizer, **self.config.scheduler.params)
 
