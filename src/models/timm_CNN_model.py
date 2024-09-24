@@ -24,8 +24,10 @@ class TimmModel(nn.Module):
             param.requires_grad = False
         
         for name, param in self.model.named_parameters():
-            if 'layer4' in name or 'fc' in name:
+            # regnet 모델의 경우, stage 3, 4 및 head 계층만 unfreeze
+            if 'stages.3' in name or 'stages.4' in name or 'head' in name or 'norm' in name:
                 param.requires_grad = True
+
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)

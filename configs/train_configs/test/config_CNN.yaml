@@ -3,12 +3,12 @@ model_module: "src.plmodules.sketch_module.SketchModelModule"
 
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
-checkpoint_path: "/data/ephemeral/home/level1-imageclassification-cv-02/output/lightning_logs/version_8/checkpoints/epoch=39-step=15040.ckpt"   # checkpoint 경로는 본인이 알아서 해줘야함. 자동으로 해주고 싶으면, README.md 파일에 적어둔 코드를 test.py 에 그대로 복붙하면됨 .
+checkpoint_path: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/kupocg2h/checkpoints/epoch=11-step=4512.ckpt"   # checkpoint 경로는 본인이 알아서 해줘야함. 자동으로 해주고 싶으면, README.md 파일에 적어둔 코드를 test.py 에 그대로 복붙하면됨 .
 
 name: "" #파이썬에서 자동으로 설정할 예정.yaml은 직렬화방식이라 동적으로 동작x
 
 model:
-  model_name: "resnext101_32x16d.fb_swsl_ig1b_ft_in1k"
+  model_name: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"
   num_classes: 500
   pretrained: True
 

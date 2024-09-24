@@ -5,29 +5,26 @@ data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
 sweep_path: "configs/train_configs/train/sweep.yaml"
-use_sweep: False # 아직은 활용 X
+use_sweep: True
 
 model:
-  model_name: "resnext101_32x16d.fb_swsl_ig1b_ft_in1k" # ResNet 중 sketch 가장 좋은 성능
+  model_name: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"
   num_classes: 500
   pretrained: True
 
 optimizer:
   name: Adam
   params:
-    lr: 1e-4 # 0.0001
+    lr: 5e-4
 
 scheduler:
-  name: ReduceLROnPlateau
+  name: CosineAnnealingLR
   params:
-    mode: max  # val_acc를 최대화하려면 'max'
-    patience: 5  # 성능이 개선되지 않는 4 epochs 이후 학습률 감소
-    factor: 5e-1  # 학습률을 80%로 감소
-    min_lr: 1e-6  # 학습률이 최소 0.0001까지 감소
-    threshold: 1e-4  # 성능 개선이 0.0001보다 작을 때만 학습률 감소
+    T_max: 10
+    eta_min: 1e-6
 
 trainer:
-  max_epochs: 50 # 최초 테스트이니 50으로 설정, 50~100 사이로 구성할 생각
+  max_epochs: 50
   accelerator: gpu
   devices: 1
   default_root_dir: "output" #output 폴더에 추가.
@@ -42,6 +39,6 @@ callbacks:
     patience: 10
     mode: max
 
-wandb_name: "resnet100_first_test" # 아직 wandb 안쓸거임
+wandb_name: "convnext_large_test_yes_op_sch"
 
 seed: 42  # 시드 값 추가
