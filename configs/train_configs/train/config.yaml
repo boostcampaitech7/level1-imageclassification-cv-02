@@ -5,7 +5,7 @@ data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
 sweep_path: "configs/train_configs/train/sweep.yaml"
-use_sweep: False
+use_sweep: False #sweep 사용시 True 로.(default 는 False)
 
 model:
   model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
@@ -26,8 +26,9 @@ scheduler:
 trainer:
   max_epochs: 13
   accelerator: gpu
-  devices: 1
+  devices: 4
   default_root_dir: "output" #output 폴더에 추가.
+  strategy : "ddp"
 
 callbacks:
   model_checkpoint:
