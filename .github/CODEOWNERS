@@ -5,4 +5,5 @@
 # the repo. Unless a later match takes precedence,
 # @global-owner1 and @global-owner2 will be requested for
 # review when someone opens a pull request.
-*@level1-imageclassification-cv-02/CV-02
+# *@level1-imageclassification-cv-02/CV-02
+* @0seoYun @kim-minsol @JungGwonHee @joonhyunkim1 @sweetie-orange @2JAE22
