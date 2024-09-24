@@ -2,10 +2,59 @@
 augmentation:
   use_augmentation: True
   transforms:
-    # - name: ColorJitter
-    #   params:
-    #     brightness: 0.5
-    - name: RandAugment
+#    - name: RandAugment
+#      params:
+#        num_ops: 2
+#        magnitude: 9
+    - name: ShiftScaleRotate
       params:
-        num_ops: 2
-        magnitude: 9
+        shift_limit: (-0.0625, 0.0625)  # 이동 비율, (x비율, y비율) 0은 변화 없은 0.5는 절반크키만큼
+        scale_limit: 0 #사용X
+        rotate_limit: 0  #사용 x 
+        interpolation: 1
+        border_mode: 3
+        value: 0 
+        mask_value: 0 
+        always_apply: False
+        rotate_method: 'largest_box'
+        p: 0.5 #변환 적용 확률 
+    - name: Rotate
+      params:
+        limit: (-45, 45)  # 회전 각도 
+        interpolation: 1
+        border_mode: 3
+        value: None
+        mask_value: None
+        rotate_method: 'largest_box'
+        crop_border: False
+        always_apply: None
+        p: 0.5 #변환 적용 확률 
+    - name: GaussianBlur
+      params:
+        blur_limit: (3, 7)  # 회전 각도 
+        sigma_limit: 0
+        always_apply: None
+        p: 0.5 #변환 적용 확률 
+    - name: GridDropout
+      params:
+        ratio: 0.5  # 회전 각도 
+        unit_size_min: 1
+        unit_size_max: None
+        holes_number_x: None
+        holes_number_y: None
+        shift_x: None
+        shift_y: None
+        random_offset: False
+        fill_value: 0
+        mask_fill_value: None
+        unit_size_range: None
+        holes_number_xy: None
+        shift_xy: None
+        always_apply: None
+        p: 0.5 #변환 적용 확률 
+    - name: RandomGridShuffle
+      params:
+        grid: (3,3) # 회전 각도 
+        always_apply: None
+        p: 0.5 #변환 적용 확률  
+

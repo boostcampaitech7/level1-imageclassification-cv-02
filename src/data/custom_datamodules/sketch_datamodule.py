@@ -4,6 +4,7 @@ import pandas as pd
 
 import torch
 from torchvision import transforms
+import albumentations as A
 
 from src.data.base_datamodule import BaseDataModule
 from src.data.collate_fns.sketch_collate_fn import sketch_collate_fn
@@ -110,16 +111,74 @@ class SketchDataModule(BaseDataModule):
         ]
         for transform_config in self.augmentation_config["augmentation"]["transforms"]:
             transform_class = getattr(transforms, transform_config["name"])
-            # transform_list.append(transform_class)
-            if transform_config["name"] == "RandAugment":
-                transform_list.append(
+            if transform_config["name"] == "ShiftScaleRotate":
+                transform_list.extend(
                     transform_class(
-                        num_ops=self.hparams.get("num_ops", 2),
-                        magnitude=self.hparams.get("magnitude", 9)
+                        shift_limit=self.hparams.get("shift_limit",  (-0.0625, 0.0625)), 
+                        scale_limit =self.hparams.get("scale_limit", 0 ), 
+                        rotate_limit =self.hparams.get("rotate_limit", 0 ), 
+                        interpolation =self.hparams.get("interpolation", 1 ), 
+                        border_mode =self.hparams.get("border_mode", 3 ), 
+                        value =self.hparams.get("value", 0), 
+                        mask_value =self.hparams.get("mask_value", 0), 
+                        always_apply =self.hparams.get("always_apply", False ), 
+                        rotate_method=self.hparams.get("rotate_method", "largest_box"),
+                        p =self.hparams.get( "num_ops", 0.5 )
+                    )
+                )
+            elif transform_config["name"] == "Rotate":
+                transform_list.extend(
+                    transform_class(
+                        limit =self.hparams.get("limit"(-90, 90)),
+                        interpolation =self.hparams.get("interpolation", 1 ), 
+                        border_mode =self.hparams.get("border_mode", 3 ), 
+                        value =self.hparams.get("value", None), 
+                        mask_value =self.hparams.get("mask_value", None), 
+                        rotate_method = self.hparams.get("rotate_method", 'largest_box'), 
+                        crop_border= self.hparams.get("rotate_method", False),
+                        always_apply=self.hparams.get("always_apply", None),
+                        p =self.hparams.get( "num_ops", 0.5 )
+                    )
+                )
+            elif transform_config["name"] == "GaussianBlur ":
+                transform_list.extend(
+                    transform_class(
+                        blur_limit =self.hparams.get("blur_limit",(3, 7)),
+                        sigma_limit =self.hparams.get("sigma_limit", 0 ), 
+                        always_apply=self.hparams.get("always_apply", None),
+                        p =self.hparams.get( "num_ops", 0.5 )
+                    )
+                )
+            elif transform_config["name"] == "GridDropout":
+                transform_list.extend(
+                    transform_class(
+                        ratio =self.hparams.get("ratio", 0.5),
+                        unit_size_min =self.hparams.get("unit_size_min", None ), 
+                        unit_size_max =self.hparams.get("unit_size_max", None ), 
+                        holes_number_x =self.hparams.get("holes_number_x", None), 
+                        holes_number_y =self.hparams.get("holes_number_y", None), 
+                        shift_x = self.hparams.get("shift_x", None), 
+                        shift_y = self.hparams.get("shift_y", None), 
+                        random_offset= self.hparams.get("random_offset", False),
+                        fill_value=self.hparams.get("fill_value", 0),
+                        mask_fill_value=self.hparams.get("mask_fill_value", None),
+                        unit_size_range=self.hparams.get("unit_size_range", None),
+                        holes_number_xy=self.hparams.get("holes_number_xy", None),
+                        shift_xy=self.hparams.get("shift_xy", (0, 0)),
+                        always_apply=self.hparams.get("always_apply", None),
+                        p =self.hparams.get( "num_ops", 0.5 )
+                    )
+                )
+            elif transform_config["name"] == "RandomGridShuffle":
+                transform_list.extend(
+                    transform_class(
+                        grid =self.hparams.get("grid", (3, 3)),
+                        always_apply=self.hparams.get("always_apply", None),
+                        p =self.hparams.get( "num_ops", 0.5 )
                     )
                 )
             else:
-                transform_list.append(transform_class(**transform_config["params"]))
+                transform_list.extend(transform_class(**transform_config["params"]))
          
         transform_list.extend(
             [
