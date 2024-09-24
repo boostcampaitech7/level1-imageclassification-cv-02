@@ -111,7 +111,7 @@ class SketchModelModule(pl.LightningModule):
                     optimizer, 
                     T_max=self.trainer.max_epochs  # CosineAnnealing 스케줄러의 최대 에폭 설정
                 )
-            elif scheduler_type == 'ReduceLROnPlateau':
+            elif self.hparams.get("lr_scheduler") == 'ReduceLROnPlateau':  #scheduler_type은 정의되지 않았음 -> 따라서 self.hparams.get()으로 직접 인자 받아야함..
                 patience = self.hparams.get("patience", 10)
                 factor = self.hparams.get("factor", 0.1)
                 scheduler = {
