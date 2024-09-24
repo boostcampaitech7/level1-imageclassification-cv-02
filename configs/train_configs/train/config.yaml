@@ -5,26 +5,26 @@ data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
 sweep_path: "configs/train_configs/train/sweep.yaml"
-use_sweep: True
+use_sweep: False
 
 model:
   model_name: "eva02_large_patch14_448.mim_in22k_ft_in22k_in1k"
   num_classes: 500
   pretrained: True
 
-# optimizer:
-#   name: Adam
-#   params:
-#     lr: 2e-4
+optimizer:
+  name: Adam
+  params:
+    lr: 2e-4
 
-# scheduler:
-#   name: StepLR
-#   params:
-#     step_size: 1
-#     gamma: 0.7
+scheduler:
+  name: StepLR
+  params:
+    step_size: 1
+    gamma: 0.6
 
 trainer:
-  max_epochs: 13
+  max_epochs: 20
   accelerator: gpu
   devices: 1
   default_root_dir: "output" #output 폴더에 추가.
@@ -36,9 +36,9 @@ callbacks:
     mode: max
   early_stopping:
     monitor: val_acc
-    patience: 2
+    patience: 3
     mode: max
 
-wandb_name: "eva02-randaug"
+wandb_name: "eva02-no_augment-no_attndrop"
 
 seed: 42  # 시드 값 추가

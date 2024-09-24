@@ -20,8 +20,8 @@ class SketchModelModule(pl.LightningModule):
             model_name=config.model.model_name, 
             num_classes=config.model.num_classes,
             pretrained=config.model.pretrained,
-            dropout_prob=self.hparams.get('dropout_prob', 0.3),
-            drop_path_prob=self.hparams.get('drop_path_prob', 0.2),
+            drop_head_prob=self.hparams.get('drop_head_prob', 0.5),
+            drop_path_prob=self.hparams.get('drop_path_prob', 0.3),
             attn_drop_prob=self.hparams.get('attn_drop_prob', 0.1)
         )
         print(self.model)
@@ -36,12 +36,12 @@ class SketchModelModule(pl.LightningModule):
     def forward(self, x):
         return self.model(x)
     
-    def on_train_epoch_start(self):
-        # This is the progressive unfreezing step.
-        current_epoch = self.trainer.current_epoch
-        if current_epoch == 5:
-            print("in epoch == 5 -> unfreeze 2 layers more!")
-            self.model.unfreeze_2_layers()
+    # def on_train_epoch_start(self):
+    #     # This is the progressive unfreezing step.
+    #     current_epoch = self.trainer.current_epoch
+    #     if current_epoch == 5:
+    #         print("in epoch == 5 -> unfreeze 2 layers more!")
+    #         self.model.unfreeze_2_layers()
 
     def training_step(self, batch, batch_idx):
         x, y = batch

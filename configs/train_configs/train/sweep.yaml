@@ -1,6 +1,3 @@
-
-
-
 program: train.py
 method: 'bayes'  # Hyperparameter search strategy
 command:
@@ -17,22 +14,28 @@ parameters:
   learning_rate:
     distribution: 'uniform'
     min: 1e-6
-    max: 1e-4
+    max: 1e-3
   lr_scheduler:
     values: ['StepLR']
   step_size:
-    distribution: 'int_uniform'
-    min: 1
-    max: 3
+    values: [1]
+    # distribution: 'int_uniform'
+    # min: 1
+    # max: 1
   gamma:
-    distribution: 'uniform'
-    min: 0.5
-    max: 0.8
+    values: [0.5, 0.7]
+    # distribution: 'uniform'
+    # min: 0.45
+    # max: 0.8
   num_ops:
-    values: [2, 3]
+    values: [2, 3, 4]
   magnitude:
-    values: [7, 9, 11]
-  drop_path_prop:
+    values: [9, 11, 13]
+  drop_head_prob:
+    distribution: 'uniform'
+    min: 0.3
+    max: 0.5
+  drop_path_prob:
     distribution: 'uniform'
     min: 0.1
     max: 0.5
