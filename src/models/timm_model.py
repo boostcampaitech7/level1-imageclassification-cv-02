@@ -22,8 +22,8 @@ class TimmModel(nn.Module):
             model_name,
             pretrained=pretrained,
             num_classes=num_classes,
-            drop_rate=drop_head_prob,
-            drop_path_rate=drop_path_prob
+            drop_rate=drop_head_prob
+            # drop_path_rate=drop_path_prob
             # attn_drop_rate=attn_drop_prob
         )
         # head 제외한 파라미터를 freeze

@@ -20,7 +20,7 @@ class SketchModelModule(pl.LightningModule):
             model_name=config.model.model_name, 
             num_classes=config.model.num_classes,
             pretrained=config.model.pretrained,
-            drop_head_prob=self.hparams.get('drop_head_prob', 0.5),
+            drop_head_prob=self.hparams.get('drop_head_prob', 0.3),
             drop_path_prob=self.hparams.get('drop_path_prob', 0.3),
             attn_drop_prob=self.hparams.get('attn_drop_prob', 0.1)
         )
