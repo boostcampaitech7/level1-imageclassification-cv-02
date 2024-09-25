@@ -2,25 +2,25 @@
 
 # Data를 처리하기 위한 custom data module의 경로
 # Dataset 과 Dataloader 를 포함하는 개념. 
-data_module: ""
+data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
 
 # 데이터 관련 설정을 포함하는 YAML 파일의 경로
 # 훈련/검증/테스트 세트 분할비율, 배치크기, 데이터로딩방식 등등.  
-data_config_path: ""
-augmentation_config_path: ""
+data_config_path: "configs/data_configs/sketch_config.yaml"
+augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
 # 모델들의 모듈과 각각의 체크포인트 경로 설정 -> 이는 앙상블 모델을 구성하는데 사용가능
 models:
-  - module: ""
+  - module: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"
     checkpoint: ""
-  - module: ""
+  - module: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"
     checkpoint: ""
 
 #개별모델에 대한 설정을 정의
 model:
-  name:
-  num_classes:
-  pretrained:
+  name: "ensemble_eva02_large_patch14_448_convnext_large_mlp"
+  num_classes: 500
+  pretrained: True
 
 trainer:
   accelerator: gpu
