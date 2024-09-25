@@ -5,7 +5,7 @@ data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
 sweep_path: "configs/train_configs/train/sweep.yaml"
-use_sweep: True
+use_sweep: False
 
 model:
   model_name: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"
@@ -24,10 +24,11 @@ scheduler:
     eta_min: 1e-6
 
 trainer:
-  max_epochs: 50
+  max_epochs: 1
   accelerator: gpu
-  devices: 1
+  devices: 4
   default_root_dir: "output" #output 폴더에 추가.
+  strategy : "ddp" 
 
 callbacks:
   model_checkpoint:
@@ -41,4 +42,11 @@ callbacks:
 
 wandb_name: "convnext_large_test_yes_op_sch"
 
+#GradCAM 설정 추가
+visualize_gradcam : True
+gradcam:
+  target_layer : model.model.stages.3.blocks.2.conv_dw #모델의 마지막 어턴션 (본인 모델의 CAM 을 보고 싶다면 마지막 레이어를 적어주면됨.)
+  image_index : 0
+  save_dir : "/home/jaegun/Study_jaegun/AI_tech/Team_project/9월 팀프로젝트/level1-imageclassification-cv-02/output/GradCam/gradcam_result.png"
+  model_name : convnext
 seed: 42  # 시드 값 추가
