@@ -29,7 +29,6 @@ class SketchDataModule(BaseDataModule):
             train_transforms = transforms.Compose(
                 [
                     transforms.Resize((448, 448)),
-                    transforms.RandAugment(),
                     transforms.ToTensor(), 
                     transforms.Normalize(
                         mean=[0.485, 0.456, 0.406],
@@ -114,8 +113,8 @@ class SketchDataModule(BaseDataModule):
             if transform_config["name"] == "RandAugment":
                 transform_list.append(
                     transform_class(
-                        num_ops=self.hparams.get("num_ops", 2),
-                        magnitude=self.hparams.get("magnitude", 9)
+                        num_ops=self.hparams.get("num_ops", transform_config["params"]["num_ops"]),
+                        magnitude=self.hparams.get("magnitude", transform_config["params"]["magnitude"])
                     )
                 )
             else:

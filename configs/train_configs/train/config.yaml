@@ -21,10 +21,10 @@ scheduler:
   name: StepLR
   params:
     step_size: 1
-    gamma: 0.7
+    gamma: 0.6
 
 trainer:
-  max_epochs: 13
+  max_epochs: 20
   accelerator: gpu
   devices: 1 
   default_root_dir: "output" #output 폴더에 추가.
@@ -37,9 +37,9 @@ callbacks:
     mode: max
   early_stopping:
     monitor: val_acc
-    patience: 2
+    patience: 3
     mode: max
 
-wandb_name: "eva02-randaug"
+wandb_name: "eva02-no_augment-no_attndrop"
 
 seed: 42  # 시드 값 추가
