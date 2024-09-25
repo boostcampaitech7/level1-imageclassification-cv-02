@@ -12,9 +12,9 @@ augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml
 # 모델들의 모듈과 각각의 체크포인트 경로 설정 -> 이는 앙상블 모델을 구성하는데 사용가능
 models:
   - module: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"
-    checkpoint: ""
+    checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/mflnadc3/checkpoints/epoch=19-step=7520.ckpt"
   - module: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"
-    checkpoint: ""
+    checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/ieif5wb5/checkpoints/epoch=16-step=6392.ckpt"
 
 #개별모델에 대한 설정을 정의
 model:
