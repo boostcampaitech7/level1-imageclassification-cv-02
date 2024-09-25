@@ -19,7 +19,10 @@ class SketchModelModule(pl.LightningModule):
         self.model = TimmModel(
             model_name=config.model.model_name, 
             num_classes=config.model.num_classes,
-            pretrained=config.model.pretrained
+            pretrained=config.model.pretrained,
+            drop_head_prob=self.hparams.get('drop_head_prob', 0.3),
+            drop_path_prob=self.hparams.get('drop_path_prob', 0.3),
+            attn_drop_prob=self.hparams.get('attn_drop_prob', 0.1)
         )
         print(self.model)
         self.precision = MulticlassPrecision(num_classes=config.model.num_classes, average="macro")
@@ -32,6 +35,13 @@ class SketchModelModule(pl.LightningModule):
 
     def forward(self, x):
         return self.model(x)
+    
+    # def on_train_epoch_start(self):
+    #     # This is the progressive unfreezing step.
+    #     current_epoch = self.trainer.current_epoch
+    #     if current_epoch == 5:
+    #         print("in epoch == 5 -> unfreeze 2 layers more!")
+    #         self.model.unfreeze_2_layers()
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -111,6 +121,19 @@ class SketchModelModule(pl.LightningModule):
                     optimizer, 
                     T_max=self.trainer.max_epochs  # CosineAnnealing 스케줄러의 최대 에폭 설정
                 )
+            elif self.hparams.get("lr_scheduler") == 'ReduceLROnPlateau':  #scheduler_type은 정의되지 않았음 -> 따라서 self.hparams.get()으로 직접 인자 받아야함..
+                patience = self.hparams.get("patience", 10)
+                factor = self.hparams.get("factor", 0.1)
+                scheduler = {
+                    'scheduler': torch.optim.lr_scheduler.ReduceLROnPlateau(
+                        optimizer, 
+                        patience=patience, 
+                        factor=factor
+                    ),
+                    'monitor': 'val_acc',
+                    'interval': 'epoch',
+                    'frequency': 1
+                }
             else:
                 scheduler = None
         else: # sweep 사용 X
@@ -118,11 +141,24 @@ class SketchModelModule(pl.LightningModule):
                 scheduler_class = getattr(
                     torch.optim.lr_scheduler, self.config.scheduler.name
                 )
-                scheduler = scheduler_class(optimizer, **self.config.scheduler.params)
-            else:
-                scheduler = None
+                if self.config.scheduler.name == "ReduceLROnPlateau":
+                    scheduler = {
+                        'scheduler': scheduler_class(optimizer, **self.config.scheduler.params),
+                        'monitor': 'val_acc'
+                    }
+                elif self.config.scheduler.name == "CosineAnnealingLR":
+                    scheduler = scheduler_class(
+                        optimizer, 
+                        T_max=self.config.scheduler.params.get("T_max", self.trainer.max_epochs),
+                        eta_min=self.config.scheduler.params.get("eta_min", 1e-6)
+                    )
+                else:
+                    scheduler = scheduler_class(optimizer, **self.config.scheduler.params)
 
         if scheduler:
-            return [optimizer], [scheduler]
+            if isinstance(scheduler, dict):  # ReduceLROnPlateau는 딕셔너리 형태로 반환
+                return [optimizer], [scheduler]
+            else:
+                return [optimizer], [{'scheduler': scheduler}]
         else:
-            return optimizer    
+            return optimizer 

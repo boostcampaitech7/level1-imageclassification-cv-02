@@ -119,8 +119,8 @@ class SketchDataModule(BaseDataModule):
             if transform_config["name"] == "RandAugment":
                 transform_list.append(
                     transform_class(
-                        num_ops=self.hparams.get("num_ops", 2),
-                        magnitude=self.hparams.get("magnitude", 9)
+                        num_ops=self.hparams.get("num_ops", transform_config["params"]["num_ops"]),
+                        magnitude=self.hparams.get("magnitude", transform_config["params"]["magnitude"])
                     )
                 )
             else:
