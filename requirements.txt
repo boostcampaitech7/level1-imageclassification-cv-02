@@ -159,6 +159,7 @@ timm==0.9.16
 tomli==2.0.1
 tomlkit==0.13.2
 torch==2.4.1
+torchcam==0.4.0
 torchmetrics==1.4.1
 torchvision==0.19.1
 tornado==6.4.1

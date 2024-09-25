@@ -53,12 +53,6 @@ pip install -r requirements.txt
 
 따라서 `pip install -r requirements.txt`를 하면 `wandb`가 다 설치되어 있을텐데, 이후에 
 terminal에서 `wandb login` 치고 나서 본인의 API 입력하면 됨. 
-그후 `wandb init`하고  train.py에
-```python
-import wandb
-wandb.init(project ="") 
-```
-<- 이렇게 뜰것입니다. 이후 `train.py` 에 복붙해서 저장후 training 시키면 됩니다.  
 
 
 ## 사용 방법
@@ -67,15 +61,48 @@ wandb.init(project ="")
 ```bash
 python train.py --config configs/train_configs/train/config.yaml
 ```
-만약에 `No module names 'src'`라고 뜬다면(현재 경로를 제대로 입력받지 않은것이니,)
-홈 디렉토리에 `.bashrc`만들고 그 안에 `export PYTHONPATH=$(pwd)`라고  입력후 저장하면 됨.
-
+- **Wandb 쓰는 방법**
+```bash
+python train.py --config configs/train_configs/train/config.yaml --use_wandb
+```
+`--use_wandb`를 붙여쓰면 됩니다.
 ### Test (Inference)
 - **config 파일 수정 잘 해서 돌리기**
 ```bash
-
 python test.py --config configs/train_configs/test/config.yaml
 ```
+
+
+
+<font size ="5">**Wandb Sweep 쓰는 방법**</font>
+### sweep 기능 적용!
+1. sweep을 사용할 때는, configs/train_configs/train/config.yaml 내에 use_sweep을 **True**로 바꿔주세요!
+2. config.yaml 내에 optimizer부분과 scheduler 부분은 **주석 처리**해주세요!
+<img width="658" alt="스크린샷 2024-09-20 오후 5 12 29" src="https://private-user-images.githubusercontent.com/81224613/369334526-3aeb3166-a69a-46bc-9648-f84f046d4048.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjcyNjk3OTcsIm5iZiI6MTcyNzI2OTQ5NywicGF0aCI6Ii84MTIyNDYxMy8zNjkzMzQ1MjYtM2FlYjMxNjYtYTY5YS00NmJjLTk2NDgtZjg0ZjA0NmQ0MDQ4LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MjUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTI1VDEzMDQ1N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWM1MzdkY2IyYWY3YWEzNDg0ZWUzYTI5MTA2MGQwOGU4NzVmZWQxN2UxMDUwMWQwNmRiZGY3NDkzYmYwZmFiMmUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.yLAztJgBTu_7zE86Azrj3xPcqoL4VK3TDnJx6XKsLAQ">
+
+
+
+
+
+## 📣 To Reviewers
+<!-- 참고 사항을 적어주세요. 없으면 지워주세요. -->
+### sweep 사용 방법
+1. agent 생성
+```bash
+wandb sweep configs/train_configs/train/sweep.yaml
+```
+2. agent 적용
+<img width="926" alt="스크린샷 2024-09-20 오후 5 17 17" src="https://private-user-images.githubusercontent.com/81224613/369333651-96f7373d-f7ba-462f-b875-6e989b835247.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjcyNjk3OTcsIm5iZiI6MTcyNzI2OTQ5NywicGF0aCI6Ii84MTIyNDYxMy8zNjkzMzM2NTEtOTZmNzM3M2QtZjdiYS00NjJmLWI4NzUtNmU5ODliODM1MjQ3LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MjUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTI1VDEzMDQ1N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTNkOTY5OTc3ZjM4NzJiMjkyZDk2ZTJlZGUxNjRhYTRlYWRmYjY2M2E5NGUzYTU0MjYyNDM1YTE3YWEwYjQzNTkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.IZ344_22mGudMAHg56IRIwj_uR-pD-FWWnMMu6qfPrQ">
+
+```bash
+wandb agent <your wandb agent> -- count 5
+```
+- 파란색 부분 복붙 후 count 추가하기 (count: sweep 적용 횟수)
+
+
+### sweep 실행 결과
+<img width="1037" alt="스크린샷 2024-09-20 오후 5 18 14" src="https://private-user-images.githubusercontent.com/81224613/369330280-baa337e0-bfd3-4e9a-b8a2-4f19beaecf08.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjcyNjk3OTcsIm5iZiI6MTcyNzI2OTQ5NywicGF0aCI6Ii84MTIyNDYxMy8zNjkzMzAyODAtYmFhMzM3ZTAtYmZkMy00ZTlhLWI4YTItNGYxOWJlYWVjZjA4LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MjUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTI1VDEzMDQ1N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWI2ZjNmMWM1MjkyMDI0ODVjNzdhYjBiZWRjOWIwZTY0YjFlMTk1ODAwNWQ2NDU0Y2Q5ZWNjMzI4NTU1Y2ZmNDcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.1TVZnKevmKi_kjsyUci0ux_Rwfo4xK7HbkM0lYJ0GYA">
+
 
 ## 프로젝트 구조
 ```
