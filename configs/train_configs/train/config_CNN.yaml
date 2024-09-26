@@ -1,5 +1,5 @@
 data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
-model_module: "src.plmodules.sketch_module.SketchModelModule"
+model_module: "src.plmodules.sketch_CNN_module.SketchModelModule_CNN"
 
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"

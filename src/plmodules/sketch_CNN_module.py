@@ -12,9 +12,9 @@ from src.models.timm_CNN_model import TimmModel
 import numpy as np
 
 
-class SketchModelModule(pl.LightningModule):
+class SketchModelModule_CNN(pl.LightningModule):
     def __init__(self, config):
-        super(SketchModelModule, self).__init__()
+        super(SketchModelModule_CNN, self).__init__()
         self.config = config
         print(config.model)
         self.model = TimmModel(

@@ -9,21 +9,57 @@ data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
-# 모델들의 모듈과 각각의 체크포인트 경로 설정 -> 이는 앙상블 모델을 구성하는데 사용가능
-models:
-  - module: "/data/ephemeral/home/level1-imageclassification-cv-02/src/plmodules/sketch_module.py"
-    checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/mflnadc3/checkpoints/epoch=19-step=7520.ckpt"
-  - module: "/data/ephemeral/home/level1-imageclassification-cv-02/src/plmodules/sketch_CNN_module.py"
-    checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/ieif5wb5/checkpoints/epoch=16-step=6392.ckpt"
+# # 모델들의 모듈과 각각의 체크포인트 경로 설정 -> 이는 앙상블 모델을 구성하는데 사용가능
+# models:
+#   - module: "src.plmodules.sketch_module.SketchModelModule"
+#     checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/mflnadc3/checkpoints/epoch=19-step=7520.ckpt"
+#   - module: "src.plmodules.sketch_CNN_module.SketchModelModule_CNN"
+#     checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/wxm28lf3/checkpoints/epoch=7-step=3008.ckpt"
 
-#개별모델에 대한 설정을 정의
-model:
-  name: "ensemble_eva02_convnext"
-  num_classes: 500
-  pretrained: True
+# #개별모델에 대한 설정을 정의
+# model:
+#   model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"
+#   num_classes: 500
+#   pretrained: True
+
+# model_CNN:
+#   model_name: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"
+#   num_classes: 500
+#   pretrained: True
+
+# trainer:
+#   accelerator: gpu
+#   devices: 1
+#   default_root_dir: "output" #output 폴더에 추가.
+
+model_EVA:
+  model:
+    model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"  # model 안에 model 추가
+    num_classes: 500
+    pretrained: True
+  module: "src.plmodules.sketch_module.SketchModelModule"
+  checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/mflnadc3/checkpoints/epoch=19-step=7520.ckpt"
+
+model_CNN:
+  model:
+    model_name: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"  # 마찬가지로 model 키 안에 설정
+    num_classes: 500
+    pretrained: True
+  module: "src.plmodules.sketch_CNN_module.SketchModelModule_CNN"
+  checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/wxm28lf3/checkpoints/epoch=7-step=3008.ckpt"
 
 trainer:
   accelerator: gpu
   devices: 1
+  default_root_dir: "output" #output 폴더에 추가.
 
 seed: 42  # 시드 값 추가
+
+ensemble_method: "averaging"  # 앙상블 방법 선택
+
+# output_path: "output/ensemble_predictions"  # 앙상블 결과물 저장 경로
+
+# 로깅 설정
+logging:
+  log_level: "INFO"
+  log_file: "logs/ensemble.log"
