@@ -1,5 +1,3 @@
-# 여기 본인 모듈에 맞게 경로 고쳐야 합니다. 
-
 # Data를 처리하기 위한 custom data module의 경로
 # Dataset 과 Dataloader 를 포함하는 개념. 
 data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
@@ -35,8 +33,6 @@ trainer:
 seed: 42  # 시드 값 추가
 
 ensemble_method: "averaging"  # 앙상블 방법 선택
-
-# output_path: "output/ensemble_predictions"  # 앙상블 결과물 저장 경로
 
 # 로깅 설정
 logging:

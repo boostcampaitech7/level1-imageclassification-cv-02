@@ -38,51 +38,9 @@ def main(config_path):
     model1 = load_model(config.model_EVA.module, config.model_EVA.checkpoint, config.model_EVA)
     model2 = load_model(config.model_CNN.module, config.model_CNN.checkpoint, config.model_CNN)
 
-# ---------------------
-    # models = [
-    #     ("SketchModelModule", model1),
-    #     ("SketchModelModule_CNN", model2)
-    # ]
-
-#     # VotingClassifier 설정
-#     ensemble_clf = VotingClassifier(estimators=models, voting='soft')
-
-#     # 데이터 로드
-#     dataloader = data_module.test_dataloader()
-#     all_predictions = []
-
-#     for batch in dataloader:
-#         data = batch[0].numpy()  # assuming the first element is the input data
-#         predictions = ensemble_clf.predict(data)
-#         all_predictions.extend(predictions)
-# ----------------------
-
     model1.eval()
     model2.eval()
 
-    # dataloader = data_module.test_dataloader()
-    # all_predictions = []
-
-    # for batch in dataloader:
-    #     x = batch[0]
-
-    #     # 만약 데이터가 3D라면 (batch_size, height, width) 형태로 되어 있는지 확인
-    #     if x.ndim == 3:
-    #         x = x.unsqueeze(1)
-
-    #     with torch.no_grad():
-    #         logits1 = model1(x)
-    #         logits2 = model2(x)
-
-    #     probs1 = torch.softmax(logits1, dim=1)
-    #     probs2 = torch.softmax(logits2, dim=1)
-
-    #     avg_probs = (probs1 + probs2) / 2.0
-
-    #     preds = torch.argmax(avg_probs, dim=1)
-    #     all_predictions.extend(preds.cpu().numpy())
-
-# --------------------------------
     models = [
         model1,
         model2
@@ -117,7 +75,7 @@ def main(config_path):
             one_hot_predictions += one_hot_preds
         soft_voting_predictions = one_hot_predictions / len(models)
     elif soft_voting_predictions.ndim == 3:  # 올바른 확률 분포 형태 (모델 개수, 데이터 개수, 클래스 개수)
-        weighted_predictions = (soft_voting_predictions[0] * 0.7) + (soft_voting_predictions[1] * 0.3)
+        weighted_predictions = (soft_voting_predictions[0] * 0.3) + (soft_voting_predictions[1] * 0.7)
         soft_voting_predictions = weighted_predictions
     else:
         raise ValueError(f"Unexpected dimension for soft_voting_predictions: {soft_voting_predictions.ndim}")
