@@ -1,6 +1,6 @@
 # configs/augmentation_configs/mnist_augmentation.yaml
 augmentation:
-  use_augmentation: True
+  use_augmentation: False
   transforms:
     # - name: ColorJitter
     #   params:

@@ -4,6 +4,9 @@ import pandas as pd
 
 import torch
 from torchvision import transforms
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+import cv2
 
 from src.data.base_datamodule import BaseDataModule
 from src.data.collate_fns.sketch_collate_fn import sketch_collate_fn
@@ -26,25 +29,28 @@ class SketchDataModule(BaseDataModule):
         if self.augmentation_config["augmentation"]["use_augmentation"]:
             train_transforms = self._get_augmentation_transforms()
         else:
-            train_transforms = transforms.Compose(
+            train_transforms = A.Compose(
                 [
-                    transforms.Resize((448, 448)),
-                    transforms.ToTensor(), 
-                    transforms.Normalize(
+                    A.Resize(height=448, width=448),
+                    #A.ShiftScaleRotate(shift_limit=(-25,25), scale_limit=0, rotate_limit=0, border_mode=3, p=0.5),
+                    #A.ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=(-30,30), border_mode=3, p=0.5),
+                    #A.GaussianBlur (blur_limit=(3,7), sigma_limit=30, p=0.5),
+                    #A.GridDropout(ratio=0.5, fill_value=255, p=0.5),
+                    A.RandomGridShuffle(grid=(3, 3), p=0.5),
+                    A.Normalize(
                         mean=[0.485, 0.456, 0.406],
-                        std=[0.229, 0.224, 0.225]
-                    )
+                        std=[0.229, 0.224, 0.225]),
+                    ToTensorV2()
                 ]
             )
 
-        test_transforms = transforms.Compose(
+        test_transforms = A.Compose(
             [
-                transforms.Resize((448, 448)),
-                transforms.ToTensor(), 
-                transforms.Normalize(
+                A.Resize(height=448, width=448),
+                A.Normalize(
                     mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]
-                )
+                    std=[0.229, 0.224, 0.225]),
+                ToTensorV2()
             ]
         )
 
