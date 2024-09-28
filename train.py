@@ -2,115 +2,17 @@ import argparse
 import importlib
 import wandb
 import os
-import glob
-import matplotlib.pyplot as plt
 import pytorch_lightning as pl
-import cv2
-import numpy as np
 import torch
+import timm
 
+from src.utils.visual_utils import perform_visualizations,visualize_gradcam, visualize_attention_eva02 #Visual에 필요한 패키지 임포트 합니다.
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
-
 from torch.utils.data import DataLoader
-from torchcam.methods import GradCAM
-
-def visualize_gradcam(
-        model: torch.nn.Module,
-        device: torch.device,
-        dataloader: DataLoader,
-        target_layer: str,
-        image_index: int,
-        save_dir: str
-    ):
-
-    # Grad-CAM 추출기를 초기화합니다.
-    cam_extractor = GradCAM(model, target_layer)
-    model.eval()  # 모델을 평가 모드로 설정합니다.
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 시각화를 위한 Figure를 생성합니다.
-    
-     # 저장 디렉토리 생성
-    os.makedirs(save_dir, exist_ok=True)
-    
-    # 기존 파일 중 가장 큰 숫자 찾기
-    existing_files = [f for f in os.listdir(save_dir) if f.startswith("gradcam_result_") and f.endswith(".png")]
-    max_num = 0
-    for file in existing_files:
-        try:
-            num = int(file.split("_")[-1].split(".")[0])
-            max_num = max(max_num, num)
-        except ValueError:
-            continue
-    
-    # 새 파일 이름 생성
-    new_num = max_num + 1
-    save_path = os.path.join(save_dir, f"gradcam_result_{new_num:03d}.png")
-    
-    # 데이터 로더에서 배치를 반복합니다.
-    current_index = 0
-    for batch in dataloader:
-        
-        if isinstance(batch, list):# batch가 리스트인 경우 첫 번째 요소를 inputs로 가정
-            inputs = batch[0]
-        else:
-            inputs = batch
-        
-        inputs = inputs.to(device)  # 입력 이미지를 장치로 이동합니다.       
-        outputs = model(inputs)  # 모델을 통해 예측을 수행합니다.
-        _, preds = torch.max(outputs, 1)  # 예측된 클래스 인덱스를 가져옵니다.
 
 
-        
-        # 배치 내의 각 이미지에 대해 처리합니다.
-        for j in range(inputs.size()[0]):
-            if current_index == image_index:
-                cam = cam_extractor(preds[j].item(), outputs[j].unsqueeze(0))[0]# CAM을 가져옵니다.               
-                cam = cam.mean(dim=0).cpu().numpy()   # CAM을 1채널로 변환합니다.                              
-                cam = cv2.resize(cam, (inputs[j].shape[2], inputs[j].shape[1]))# CAM을 원본 이미지 크기로 리사이즈합니다.              
-                cam = (cam - cam.min()) / (cam.max() - cam.min())  # CAM을 정규화합니다.# 정규화              
-                cam = np.uint8(255 * cam)# CAM을 0-255 범위로 변환합니다.
-                cam = cv2.applyColorMap(cam, cv2.COLORMAP_JET)# 컬러맵을 적용하여 RGB 이미지로 변환합니다.
-                cam = cv2.cvtColor(cam, cv2.COLOR_BGR2RGB)  # BGR에서 RGB로 변환            
-
-                # 입력 이미지가 1채널 또는 3채널인지 확인하고 처리합니다.
-                input_image = inputs[j].cpu().numpy().transpose((1, 2, 0))
-                if input_image.shape[2] == 1:  # 1채널 이미지인 경우
-                    input_image = np.squeeze(input_image, axis=2)  # (H, W, 1) -> (H, W)
-                    input_image = np.stack([input_image] * 3, axis=-1)  # (H, W) -> (H, W, 3)로 변환하여 RGB처럼 만듭니다.
-
-                else:  # 3채널 이미지인 경우
-                    input_image = (input_image - input_image.min()) / (input_image.max() - input_image.min())
-                    input_image = (input_image * 255).astype(np.uint8)  # 정규화된 이미지를 8비트 이미지로 변환합니다.
-
-                # 오리지널 이미지
-                axes[0].imshow(input_image)
-                axes[0].set_title("Original Image")
-                axes[0].axis('off')              
-
-                # Grad-CAM 이미지
-                axes[1].imshow(cam)
-                axes[1].set_title("Grad-CAM Image")
-                axes[1].axis('off')
-            
-                # 오버레이된 이미지 생성
-                overlay = cv2.addWeighted(input_image, 0.5, cam, 0.9, 0)
-                axes[2].imshow(overlay)
-                axes[2].set_title("Overlay Image")
-                axes[2].axis('off')  
-
-                # 이미지 저장
-                plt.savefig(save_path)
-                plt.close()
-                print(f"GradCAM image saved to {save_path}")
-                
-
-            current_index += 1
-
-    # 이미지 저장
-    plt.savefig(save_path)
-    plt.close()
-    print(f"GradCAM image saved to {save_path}")
 
 
 def main(config_path, use_wandb=True, sweep_dict=None):
@@ -165,22 +67,16 @@ def main(config_path, use_wandb=True, sweep_dict=None):
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=logger,
         precision='16-mixed',
-        # default_root_dir=config.trainer.default_root_dir #output 에 저장으로 변경.
+        
     )
 
     # 훈련 시작
     trainer.fit(model, datamodule=data_module)
 
-    # GradCAM 시각화 추가
-    if config.get("visualize_gradcam", False):
-        visualize_gradcam(
-            model=model,
-            device=model.device,
-            dataloader=data_module.val_dataloader(),
-            target_layer=config.gradcam.target_layer,
-            image_index=config.gradcam.image_index,
-            save_dir=config.gradcam.save_dir  # 저장 경로 추가
-        )
+    #시각화 수행.-> 수행할지 여부는 config 에 설정.
+    perform_visualizations(config, model, data_module)
+
+
 
 
 if __name__ == "__main__":
