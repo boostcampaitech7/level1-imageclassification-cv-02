@@ -24,10 +24,10 @@ scheduler:
     gamma: 0.7
 
 trainer:
-  max_epochs: 5
+  max_epochs: 1
   accelerator: gpu
   devices: 4 
-  default_root_dir: "output" #output 폴더에 추가.
+  default_root_dir: "output" #output 폴더에 결과 자동으로 추가.
   strategy : "ddp" 
 
 callbacks:
@@ -43,11 +43,11 @@ callbacks:
 wandb_name: "eva02(mim)-randaug-onlyheaddrop-6nonfreeze-20epochs"
 
 
-#GradCAM 설정 추가
-visualize_gradcam : True
-gradcam:
-  target_layer : model.model.blocks.23.mlp.act #모델의 마지막 어턴션 (본인 모델의 CAM 을 보고 싶다면 마지막 레이어를 적어주면됨.)
-  image_index : 0
-  save_dir : "/home/jaegun/Study_jaegun/AI_tech/Team_project/9월 팀프로젝트/level1-imageclassification-cv-02/output/GradCam/gradcam_result.png"
-  model_name : "eva02_large_patch14_448"
-seed: 42  # 시드 값 추가
+
+# Attention 시각화 설정 추가
+visualize_attention: True
+attention:
+  input_image_dir: "data/train"
+  output_image_dir: "output/Transformer"
+  layer_index: 23
+  head_index: 7
