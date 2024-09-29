@@ -5,7 +5,7 @@ data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
 sweep_path: "configs/train_configs/train/sweep.yaml"
-use_sweep: False #sweep 사용시 True 로.(default 는 False)
+use_sweep: True #sweep 사용시 True 로.(default 는 False)
 
 model:
   model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"
@@ -37,7 +37,7 @@ callbacks:
     mode: max
   early_stopping:
     monitor: val_acc
-    patience: 3
+    patience: 10
     mode: max
 
 wandb_name: "eva02(mim)-randaug-onlyheaddrop-6nonfreeze-20epochs"
