@@ -59,17 +59,25 @@ terminal에서 `wandb login` 치고 나서 본인의 API 입력하면 됨.
 ### Train
 - **config 파일 수정 잘 해서 돌리기**
 ```bash
-python train.py --config configs/train_configs/train/config.yaml
+python train.py --config configs/train_configs/train/config.yaml #Eva 모델
+python train.py --config configs/train_configs/train/config_CNN.yaml #Covnext 모델
 ```
-- **Wandb 쓰는 방법**
+- **Wandb 쓰는 방법** 👉 `--use_wandb`를 붙여쓰면 됩니다
 ```bash
-python train.py --config configs/train_configs/train/config.yaml --use_wandb
+python train.py --config configs/train_configs/train/config.yaml --use_wandb #test Eva모델
+python test.py --config configs/train_configs/test/config_CNN.yaml --use_wandb #test Covnext 모델
 ```
-`--use_wandb`를 붙여쓰면 됩니다.
+.
+
+
+
 ### Test (Inference)
 - **config 파일 수정 잘 해서 돌리기**
 ```bash
-python test.py --config configs/train_configs/test/config.yaml
+python test.py --config configs/train_configs/test/config.yaml #test Eva모델
+
+python test.py --config configs/train_configs/test/config_CNN.yaml #test CNN모델
+
 ```
 
 
@@ -107,55 +115,55 @@ wandb agent <your wandb agent> -- count 5
 ## 프로젝트 구조
 ```
 .
-|-- README.md
-|-- competition1
-|   |-- bin
-|   |-- include
-|   |-- lib
-|   |-- lib64 -> lib
-|   |-- pyvenv.cfg
-|   `-- share
-|-- configs
-|   |-- augmentation_configs
-|   |-- data_configs
-|   |-- ensemble_configs
-|   `-- train_configs
-|-- data
-|   |-- sample_submission.csv
-|   |-- test
-|   |-- test.csv
-|   |-- train
-|   `-- train.csv
-|-- output
-|   |-- eva02_large_patch14_448.csv
-|   `-- lightning_logs
-|-- poetry.lock
-|-- pyproject.toml
-|-- pytest.ini
-|-- requirements.txt
-|-- settings
-|   `-- LICENSE
-|-- src
-|   |-- data
-|   |-- ensemble
-|   |-- experiments
-|   |-- loss_functions
-|   |-- models
-|   |-- optimizers
-|   |-- plmodules
-|   |-- scheduler
-|   `-- utils
-|-- test.py
-|-- tests
-|   |-- __init__.py
-|   |-- conftest.py
-|   |-- test_datamodules.py
-|   |-- test_ensemble_predict.py
-|   |-- test_ensembles.py
-|   |-- test_losses.py
-|   |-- test_models.py
-|   `-- test_optimizers.py
-`-- train.py
+├── competition1
+├── poetry.lock
+├── pyproject.toml
+├── pytest.ini
+├── README.md
+├── requirements.txt
+├── Sketch
+├── train.py
+├── test.py
+├── configs
+│   ├── augmentation_configs
+│   ├── data_configs
+│   ├── ensemble_configs
+│   └── train_configs
+├── data
+│   ├── sample_submission.csv
+│   ├── test
+│   ├── test.csv
+│   ├── train
+│   ├── train.csv
+│   └── train_processed.csv
+├── output
+│   ├── GradCam
+│   ├── lightning_logs
+│   └── Transformer
+│
+├── settings
+│   └── LICENSE
+├── src
+│   ├── data
+│   ├── ensemble
+│   ├── experiments
+│   ├── loss_functions
+│   ├── models
+│   ├── optimizers
+│   ├── plmodules
+│   ├── scheduler
+│   └── utils
+│
+├── tests
+│   ├── conftest.py
+│   ├── __init__.py
+│   ├── test_datamodules.py
+│   ├── test_ensemble_predict.py
+│   ├── test_ensembles.py
+│   ├── test_losses.py
+│   ├── test_models.py
+│   └── test_optimizers.py
+
 ```
 
 ### 주요 디렉토리 설명
@@ -164,11 +172,7 @@ wandb agent <your wandb agent> -- count 5
 데이터 증강, 데이터셋, 앙상블, 학습 등에 관한 설정 파일들이 포함되어 있습니다.
 
 - `output`
-프로젝트의 결과물인 CSV 파일들을 저장하는 디렉토리입니다.
-
-- `settings`
-프로젝트의 의존성 관리와 라이선스 관련 파일들이 위치한 디렉토리입니다.
-
+프로젝트의 결과물인 CSV, 시각화 파일들을 저장하는 디렉토리입니다.
 
 - `src`
 프로젝트의 핵심 소스 코드가 위치한 디렉토리입니다.
@@ -203,102 +207,6 @@ PyTorch Lightning 모듈들이 위치합니다. 스케치 모듈 등 특정 태�
 - `scheduler`
 학습률 스케줄러 관련 모듈들이 위치합니다. 기본 스케줄러와 사용자 정의 스케줄러들이 포함되어 있습니다.
 
-
-
 - `utils`
-프로젝트 전반에서 사용되는 유틸리티 함수들이 위치합니다. 데이터, 평가, 모델 관련 유틸리티 함수들이 포함되어 있습니다.
+프로젝트 전반에서 사용되는 유틸리티 함수들이 위치합니다. 데이터, 평가, 모델,시각화 관련 유틸리티 함수들이 포함되어 있습니다.
 
-### + checkpoint_path를 일일히 지정하기가 귀찮다면?
-- `test.py`의 코드를 지우고 밑에 코드 복붙.
--> 하지만 이는 최신 체크포인트롤 이용해 test하는 것일뿐 validation_test가 가장 높은 것을 이용한게 아니므로 최적의 모델이 아닐 수 있음.
-```python
-import argparse
-import os
-import pytorch_lightning as pl
-from omegaconf import OmegaConf
-
-from src.data.custom_datamodules.sketch_datamodule import SketchDataModule
-from src.plmodules.sketch_module import SketchModelModule
-
-
-def get_latest_checkpoint(checkpoint_dir):
-    checkpoint_paths = []
-    for root, dirs, files in os.walk(checkpoint_dir):
-        for file in files:
-            if file.endswith('.ckpt'):
-                checkpoint_paths.append(os.path.join(root, file))
-    if not checkpoint_paths:
-        return None
-    return max(checkpoint_paths, key=os.path.getctime)
-
-
-def main(config_path, checkpoint_path=None):
-    # YAML 파일 로드
-    config = OmegaConf.load(config_path)
-    
-    # model_name에서 '.' 이전 부분 추출하여 name 필드 설정
-    model_name = config.model.model_name
-    name_prefix = model_name.split('.')[0]
-    
-    if not config.get('name'):  # name 필드가 비어있다면 설정
-        config.name = name_prefix
-    
-    print(f"Name from config: {config.name}")
-
-    # 최신 체크포인트 경로 업데이트
-    if checkpoint_path is None:
-        checkpoint_dir = config.checkpoint_path
-        checkpoint_path = get_latest_checkpoint(checkpoint_dir)
-    
-    if checkpoint_path is None:
-        raise ValueError("No checkpoint found. Please specify a valid checkpoint path.")
-
-    print(f"Using checkpoint: {checkpoint_path}")
-
-    # 데이터 모듈 설정
-    data_config_path = config.data_config_path
-    augmentation_config_path = config.augmentation_config_path
-    seed = config.get("seed", 42)  # 시드 값을 설정 파일에서 읽어오거나 기본값 42 사용
-    data_module = SketchDataModule(data_config_path, augmentation_config_path, seed)
-    data_module.setup()
-
-    # 모델 설정
-    model = SketchModelModule.load_from_checkpoint(checkpoint_path, config=config)
-
-    # 트레이너 설정
-    trainer = pl.Trainer(
-        accelerator=config.trainer.accelerator,
-        devices=config.trainer.devices,
-        precision=16,
-        default_root_dir=config.trainer.default_root_dir  # output 폴더로 저장하게끔
-    )
-
-    # 평가 시작
-    trainer.test(model, datamodule=data_module)
-
-    # csv 파일에 output 저장하기
-    output_path = f"{config.trainer.default_root_dir}/{config.name}.csv"  # output 폴더에 저장
-    test_info = data_module.test_info
-    predictions = model.test_predictions
-    test_info['target'] = predictions
-    test_info = test_info.reset_index().rename(columns={"index": "ID"})
-
-    # 결과를 csv 파일로 저장
-    test_info.to_csv(output_path, index=False)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Evaluate a model with PyTorch Lightning"
-    )
-    parser.add_argument(
-        "--config", type=str, required=True, help="Path to the config file"
-    )
-    parser.add_argument(
-        "--checkpoint", type=str, required=False, help="Path to the model checkpoint"
-    )
-    args = parser.parse_args()
-
-    main(args.config, args.checkpoint)
-
-```

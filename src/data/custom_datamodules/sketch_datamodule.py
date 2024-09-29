@@ -32,15 +32,19 @@ class SketchDataModule(BaseDataModule):
             train_transforms = A.Compose(
                 [
                     A.Resize(height=448, width=448),
-                    #A.ShiftScaleRotate(shift_limit=(-25,25), scale_limit=0, rotate_limit=0, border_mode=3, p=0.5),
+                    A.ShiftScaleRotate(shift_limit=(-0.25, 0.25), scale_limit=0, rotate_limit=0, border_mode=3, p=0.5),
                     #A.ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=(-30,30), border_mode=3, p=0.5),
-                    #A.GaussianBlur (blur_limit=(3,7), sigma_limit=30, p=0.5),
+                    A.GaussianBlur (blur_limit=(3,7), sigma_limit=30, p=0.5),
+                    # A.RandomBrightnessContrast(brightness_limit=(-0.5, 0.05), contrast_limit=(-0.2, 0.1), p=0.5),
+                    # A.VerticalFlip(p=0.3),
+                    # A.HorizontalFlip(p=0.3),
                     #A.GridDropout(ratio=0.5, fill_value=255, p=0.5),
-                    A.RandomGridShuffle(grid=(3, 3), p=0.5),
+                    # A.RandomGridShuffle(grid=(3, 3), p=0.5),
                     A.Normalize(
                         mean=[0.485, 0.456, 0.406],
                         std=[0.229, 0.224, 0.225]),
                     ToTensorV2()
+
                 ]
             )
 
