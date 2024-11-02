@@ -3,7 +3,7 @@ data:
   name: Sketch
   raw_data_path: data/train
   test_data_path: data/test
-  processed_data_path: data/processed/Sketch
+  processed_data_path: Sketch
   train_df_path: data/train.csv
   test_df_path: data/test.csv
   train_val_split: 0.8
