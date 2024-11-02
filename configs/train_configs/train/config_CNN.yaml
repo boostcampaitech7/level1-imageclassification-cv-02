@@ -1,4 +1,4 @@
-data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
+data_module: "src.data.datamodules.sketch_datamodule.SketchDataModule"
 model_module: "src.plmodules.sketch_module.SketchModelModule"
 
 data_config_path: "configs/data_configs/sketch_config.yaml"
@@ -27,7 +27,7 @@ trainer:
   max_epochs: 1
   accelerator: gpu
   devices: 4
-  default_root_dir: "output" #output 폴더에 추가.
+  default_root_dir: "output"
   strategy : "ddp" 
 
 callbacks:
@@ -45,8 +45,8 @@ wandb_name: "convnext_large_"
 #GradCAM 설정 추가
 visualize_gradcam : True
 gradcam:
-  target_layer : model.model.stages.3.blocks.2.conv_dw #모델의 마지막 어턴션 (본인 모델의 CAM 을 보고 싶다면 마지막 레이어를 적어주면됨.)
+  target_layer : model.model.stages.3.blocks.2.conv_dw # 모델의 마지막 layer
   image_index : 0
   save_dir : "output/GradCam/gradcam_result.png"
   model_name : convnext
-seed: 42  # 시드 값 추가
+seed: 42

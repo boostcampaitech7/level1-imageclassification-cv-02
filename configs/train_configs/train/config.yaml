@@ -1,4 +1,4 @@
-data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule" # data module path
+data_module: "src.data.datamodules.sketch_datamodule.SketchDataModule" # data module path
 model_module: "src.plmodules.sketch_module.SketchModelModule" # pl module path
 
 data_config_path: "configs/data_configs/sketch_config.yaml" # dataset config path
@@ -27,7 +27,7 @@ trainer:
   max_epochs: 1
   accelerator: gpu
   devices: 4 
-  default_root_dir: "output" # output 폴더에 결과 저장
+  default_root_dir: "output"
   strategy : "ddp" 
 
 callbacks:
