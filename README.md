@@ -1,5 +1,5 @@
 # Sketch Image Classification
-
+Boostcamp 내에서 ImageNet-Sketch 데이터셋을 기반으로 한 이미지 분류 대회를 진행하였습니다.
 
 ## git 설치
 ```bash
@@ -9,7 +9,6 @@ apt install -y git
 git clone https://github.com/boostcampaitech7/level1-imageclassification-cv-02.git
 cd level1-imageclassification-cv-02
 ```
-
 
 ## Python package 설치
 이 프로젝트는 Poetry를 사용하여 의존성을 관리합니다. 설치 방법은 다음과 같습니다:
