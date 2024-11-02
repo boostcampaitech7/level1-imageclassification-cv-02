@@ -1,5 +1,5 @@
 data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
-model_module: "src.plmodules.sketch_CNN_module.SketchModelModule_CNN"
+model_module: "src.plmodules.sketch_module.SketchModelModule"
 
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
@@ -40,7 +40,7 @@ callbacks:
     patience: 10
     mode: max
 
-wandb_name: "convnext_large_test_yes_op_sch"
+wandb_name: "convnext_large_"
 
 #GradCAM 설정 추가
 visualize_gradcam : True

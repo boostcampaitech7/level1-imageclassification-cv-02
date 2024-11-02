@@ -20,7 +20,7 @@ class SketchModelModule(pl.LightningModule):
             model_name=config.model.model_name, 
             num_classes=config.model.num_classes,
             pretrained=config.model.pretrained,
-            drop_head_prob=self.hparams.get('drop_head_prob', 0.3),
+            drop_head_prob=self.hparams.get('drop_head_prob', 0.3), # sweeping eva model dropout prob
             drop_path_prob=self.hparams.get('drop_path_prob', 0.3),
             attn_drop_prob=self.hparams.get('attn_drop_prob', 0.1)
         )
@@ -30,18 +30,11 @@ class SketchModelModule(pl.LightningModule):
         self.f1_score = MulticlassF1Score(num_classes=config.model.num_classes, average="macro")
         self.wandb_logger = WandbLogger(project="Sketch", name="SKETCH_TEST")
         self.test_results = {}
-        self.test_predictions = []
-        self.test_step_outputs = []  # 추가
+        self.test_predictions = [] # epoch predictions
+        self.test_step_outputs = [] # merging step outputs for epoch preds 
 
     def forward(self, x):
         return self.model(x)
-    
-    # def on_train_epoch_start(self):
-    #     # This is the progressive unfreezing step.
-    #     current_epoch = self.trainer.current_epoch
-    #     if current_epoch == 5:
-    #         print("in epoch == 5 -> unfreeze 2 layers more!")
-    #         self.model.unfreeze_2_layers()
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -63,7 +56,6 @@ class SketchModelModule(pl.LightningModule):
         logits = F.softmax(y_hat, dim=1)
         preds = logits.argmax(dim=1)
         acc = torch.tensor(torch.sum(preds == y).item() / len(preds))
-        # print("[Validation_acc]:", acc)
 
         self.log("val_loss", loss)
         self.log("val_acc", acc)
@@ -73,26 +65,25 @@ class SketchModelModule(pl.LightningModule):
         return loss
 
     def on_test_epoch_start(self):
-        self.test_step_outputs = []  # 테스트 에포크 시작 시 초기화
+        self.test_step_outputs = []  # test epoch 시작 시 초기화
 
     def test_step(self, batch, batch_idx):
         x = batch
         y_hat = self.forward(x)
         logits = F.softmax(y_hat, dim=1)
         preds = logits.argmax(dim=1)
-        output = {"preds": preds.cpu().detach().numpy()} # 우리의 데이터셋에는 target 없음!
+        output = {"preds": preds.cpu().detach().numpy()} # 모델 예측 값 dict로 반환
         self.test_step_outputs.append(output)  # 결과를 리스트에 추가
         return output
 
     def on_test_epoch_end(self):
         outputs = self.test_step_outputs
-        # preds = torch.cat([output["preds"] for output in outputs])
         preds = np.concatenate([output["preds"] for output in outputs])
         self.test_results["predictions"] = preds
 
-        # 모든 test data에 대한 예측 한 리스트로 합치기!
-        self.test_predictions.extend(preds) # csv 파일에 저장하기 위함!
-        self.test_step_outputs.clear()  # 메모리 정리
+        # 모든 test data에 대한 예측을 한 리스트로 합치기
+        self.test_predictions.extend(preds) # csv 파일에 저장
+        self.test_step_outputs.clear() # 메모리 정리
 
     def predict_step(self, batch, batch_idx):
         x, _ = batch
@@ -103,13 +94,13 @@ class SketchModelModule(pl.LightningModule):
         lr = self.hparams.get("learning_rate", 2e-4) # sweep으로 lr 조정. / default: 2e-4
         optimizer_class = torch.optim.Adam
 
-        # 옵티마이저 생성
+        # optimizer 생성
         optimizer = optimizer_class(self.parameters(), lr=lr)
 
         if self.config.use_sweep is True: # sweep 사용 시
-            # 스케줄러 설정
-            if self.hparams.get("lr_scheduler") == 'StepLR':
-                step_size = self.hparams.get("step_size", 1)  # Sweep에서 step_size 받기
+            # scheduler 설정
+            if self.hparams.get("lr_scheduler") == 'StepLR': # StepLR 설정
+                step_size = self.hparams.get("step_size", 1) # step size마다 lr 감소
                 gamma = self.hparams.get("gamma", 0.7)
                 scheduler = torch.optim.lr_scheduler.StepLR(
                     optimizer, 
@@ -121,7 +112,7 @@ class SketchModelModule(pl.LightningModule):
                     optimizer, 
                     T_max=self.trainer.max_epochs  # CosineAnnealing 스케줄러의 최대 에폭 설정
                 )
-            elif self.hparams.get("lr_scheduler") == 'ReduceLROnPlateau':  #scheduler_type은 정의되지 않았음 -> 따라서 self.hparams.get()으로 직접 인자 받아야함..
+            elif self.hparams.get("lr_scheduler") == 'ReduceLROnPlateau': # ReduceLROnPlateau 설정
                 patience = self.hparams.get("patience", 10)
                 factor = self.hparams.get("factor", 0.1)
                 scheduler = {

@@ -17,6 +17,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def load_model(module_name, checkpoint_path, model_config):
+    """ load model from checkpoint
+
+    Args:
+        module_name (str): pytorch lightning module for model
+        checkpoint_path (str): path of model checkpoint
+        model_config (dict): config of each model
+
+    Returns:
+        model: model from checkpoint
+    """
     module_path, class_name = module_name.rsplit(".", 1)
     ModelClass = getattr(importlib.import_module(module_path), class_name)
     model = ModelClass.load_from_checkpoint(checkpoint_path, config=model_config)
@@ -55,33 +65,15 @@ def main(config_path):
         default_root_dir=default_root_dir  # default_root_dir 설정
     )
 
-    # 예측 시작
-    soft_voting_predictions = []
+    predictions = []
     for model in models:
         trainer.test(model, datamodule=data_module)
-        soft_voting_predictions.append(np.array(model.test_predictions))
+        pred = model.test_results["predictions"]
+        predictions.append(pred)
 
-    # Soft Voting 앙상블: 예측 확률 분포로 가정하고 평균 계산
-    soft_voting_predictions = np.array(soft_voting_predictions)
-
-    # 예측값이 클래스 인덱스인지 확인하고 변환
-    if soft_voting_predictions.ndim == 2:  # 예측값이 1차원 배열 (클래스 인덱스)인 경우
-        # 예측값을 확률 분포로 변환
-        num_classes = config.model_EVA.model.num_classes
-        one_hot_predictions = np.zeros((len(soft_voting_predictions[0]), num_classes))
-        for preds in soft_voting_predictions:
-            one_hot_preds = np.zeros((len(preds), num_classes))
-            one_hot_preds[np.arange(len(preds)), preds.astype(int)] = 1
-            one_hot_predictions += one_hot_preds
-        soft_voting_predictions = one_hot_predictions / len(models)
-    elif soft_voting_predictions.ndim == 3:  # 올바른 확률 분포 형태 (모델 개수, 데이터 개수, 클래스 개수)
-        weighted_predictions = (soft_voting_predictions[0] * 0.3) + (soft_voting_predictions[1] * 0.7)
-        soft_voting_predictions = weighted_predictions
-    else:
-        raise ValueError(f"Unexpected dimension for soft_voting_predictions: {soft_voting_predictions.ndim}")
-
-    # 앙상블 확률을 기반으로 최종 예측 결정
-    ensemble_predictions = np.argmax(soft_voting_predictions, axis=1)
+    # 앙상블 예측
+    output = torch.mean(torch.stack(predictions), dim=0)
+    ensemble_predictions = output.argmax(dim=1).cpu().numpy()
 
     # 결과 저장
     output_path = f"{config.trainer.default_root_dir}/{config.model_EVA.model.model_name}_ensemble.csv"

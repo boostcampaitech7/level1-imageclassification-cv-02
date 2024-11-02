@@ -1,4 +1,4 @@
-# configs/data_configs/mnist_config.yaml
+# configs/data_configs/sketch_config.yaml
 data:
   name: Sketch
   raw_data_path: data/train

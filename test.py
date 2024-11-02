@@ -1,13 +1,12 @@
-import argparse
 import os
 import glob
-import pytorch_lightning as pl
 import yaml
+import argparse
 from omegaconf import OmegaConf
+import pytorch_lightning as pl
 
 from src.data.custom_datamodules.sketch_datamodule import SketchDataModule
 from src.plmodules.sketch_module import SketchModelModule
-
 
 
 def main(config_path, checkpoint_path=None):
