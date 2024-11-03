@@ -1,11 +1,11 @@
-data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
-model_module: "src.plmodules.sketch_module.SketchModelModule"
+data_module: "src.data.datamodules.sketch_datamodule.SketchDataModule" # data module path
+model_module: "src.plmodules.sketch_module.SketchModelModule" # pl module path
 
-data_config_path: "configs/data_configs/sketch_config.yaml"
-augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
+data_config_path: "configs/data_configs/sketch_config.yaml" # dataset config path
+augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml" # augmentation config path
 
-sweep_path: "configs/train_configs/train/sweep.yaml"
-use_sweep: True #sweep 사용시 True 로.(default 는 False)
+sweep_path: "configs/train_configs/train/sweep.yaml" # sweep config path
+use_sweep: True # for hyperparameter sweep
 
 model:
   model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"
@@ -27,13 +27,13 @@ trainer:
   max_epochs: 1
   accelerator: gpu
   devices: 4 
-  default_root_dir: "output" #output 폴더에 결과 자동으로 추가.
+  default_root_dir: "output"
   strategy : "ddp" 
 
 callbacks:
   model_checkpoint:
     monitor: val_acc
-    save_top_k: 3
+    save_top_k: 
     mode: max
   early_stopping:
     monitor: val_acc
@@ -42,10 +42,8 @@ callbacks:
 
 wandb_name: "eva02(mim)-randaug-onlyheaddrop-6nonfreeze-20epochs"
 
-
-
 # Attention 시각화 설정 추가
-visualize_attention: True
+visualize_attention: False
 attention:
   input_image_dir: "data/train"
   output_image_dir: "output/Transformer"

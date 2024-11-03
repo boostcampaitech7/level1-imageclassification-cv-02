@@ -4,9 +4,6 @@ import pandas as pd
 
 import torch
 from torchvision import transforms
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
-import cv2
 
 from src.data.base_datamodule import BaseDataModule
 from src.data.collate_fns.sketch_collate_fn import sketch_collate_fn
@@ -16,45 +13,38 @@ from src.utils.data_utils import load_yaml_config
 
 
 class SketchDataModule(BaseDataModule):
-    def __init__(self, data_config_path: str, augmentation_config_path: str, seed: int):
+    def __init__(self, data_config_path: str, augmentation_config_path: str = None, seed: int = 42):
         self.data_config = load_yaml_config(data_config_path)
-        self.augmentation_config = load_yaml_config(augmentation_config_path)
+        if augmentation_config_path is not None:
+            self.augmentation_config = load_yaml_config(augmentation_config_path)
+        else:
+            self.augmentation_config = None
         self.seed = seed  # TODO
         super().__init__(self.data_config)
 
     def setup(self, stage: Optional[str] = None):
-        # 시드 설정
         torch.manual_seed(self.seed)
 
-        if self.augmentation_config["augmentation"]["use_augmentation"]:
-            train_transforms = self._get_augmentation_transforms()
-        else:
-            train_transforms = A.Compose(
+        if self.augmentation_config["augmentation"]["use_augmentation"] is False or self.augmentation_config is None: # test or unusing augmentation
+            train_transforms = transforms.Compose(
                 [
-                    A.Resize(height=448, width=448),
-                    A.ShiftScaleRotate(shift_limit=(-0.25, 0.25), scale_limit=0, rotate_limit=0, border_mode=3, p=0.5),
-                    #A.ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=(-30,30), border_mode=3, p=0.5),
-                    A.GaussianBlur (blur_limit=(3,7), sigma_limit=30, p=0.5),
-                    # A.RandomBrightnessContrast(brightness_limit=(-0.5, 0.05), contrast_limit=(-0.2, 0.1), p=0.5),
-                    # A.VerticalFlip(p=0.3),
-                    # A.HorizontalFlip(p=0.3),
-                    #A.GridDropout(ratio=0.5, fill_value=255, p=0.5),
-                    # A.RandomGridShuffle(grid=(3, 3), p=0.5),
-                    A.Normalize(
+                    transforms.ToTensor(), 
+                    transforms.Normalize(
                         mean=[0.485, 0.456, 0.406],
-                        std=[0.229, 0.224, 0.225]),
-                    ToTensorV2()
-
+                        std=[0.229, 0.224, 0.225]
+                    )
                 ]
             )
+        else: # use augmentation
+            train_transforms = self._get_augmentation_transforms()
 
-        test_transforms = A.Compose(
+        test_transforms = transforms.Compose(
             [
-                A.Resize(height=448, width=448),
-                A.Normalize(
+                transforms.ToTensor(), 
+                transforms.Normalize(
                     mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]),
-                ToTensorV2()
+                    std=[0.229, 0.224, 0.225]
+                )
             ]
         )
 
@@ -119,7 +109,6 @@ class SketchDataModule(BaseDataModule):
         ]
         for transform_config in self.augmentation_config["augmentation"]["transforms"]:
             transform_class = getattr(transforms, transform_config["name"])
-            # transform_list.append(transform_class)
             if transform_config["name"] == "RandAugment":
                 transform_list.append(
                     transform_class(

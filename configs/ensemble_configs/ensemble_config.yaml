@@ -1,25 +1,23 @@
-# Data를 처리하기 위한 custom data module의 경로
-# Dataset 과 Dataloader 를 포함하는 개념. 
-data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
+# configs/ensemble_configs/ensemble_config.yaml
+data_module: "src.data.datamodules.sketch_datamodule.SketchDataModule" # custom data module path
 
-# 데이터 관련 설정을 포함하는 YAML 파일의 경로
-# 훈련/검증/테스트 세트 분할비율, 배치크기, 데이터로딩방식 등등.  
+# configs for data module
 data_config_path: "configs/data_configs/sketch_config.yaml"
 augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
 
-name: "" #파이썬에서 자동으로 설정할 예정.yaml은 직렬화방식이라 동적으로 동작x
+name: "" 
 
-model_EVA:
+model_EVA: # eva clip model
   model:
-    model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"  # model 안에 model 추가
+    model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"  # model name
     num_classes: 500
     pretrained: True
   module: "src.plmodules.sketch_module.SketchModelModule"
   checkpoint: "/data/ephemeral/home/level1-imageclassification-cv-02/Sketch/minsol/eva.ckpt"
 
-model_CNN:
+model_CNN: # convnext model
   model:
-    model_name: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"  # 마찬가지로 model 키 안에 설정
+    model_name: "convnext_large_mlp.clip_laion2b_augreg_ft_in1k"  # model name
     num_classes: 500
     pretrained: True
   module: "src.plmodules.sketch_CNN_module.SketchModelModule_CNN"
@@ -28,13 +26,10 @@ model_CNN:
 trainer:
   accelerator: gpu
   devices: 1
-  default_root_dir: "output" #output 폴더에 추가.
+  default_root_dir: "output" # 
 
-seed: 42  # 시드 값 추가
+seed: 42
 
-ensemble_method: "averaging"  # 앙상블 방법 선택
-
-# 로깅 설정
 logging:
   log_level: "INFO"
   log_file: "logs/ensemble.log"

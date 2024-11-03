@@ -1,7 +1,7 @@
+import timm
 import torch
 import torch.nn.functional as F
 from torch import nn
-import timm
 
 
 class TimmModel(nn.Module):
@@ -30,14 +30,10 @@ class TimmModel(nn.Module):
         for param in self.model.parameters():
             param.requires_grad = False
         
-        for name, param in self.model.named_parameters():
-            if 'blocks.18' in name or 'blocks.19' in name or 'blocks.20' in name or 'blocks.21' in name or 'blocks.22' in name or 'blocks.23' in name or 'head' in name:  # 마지막 2개 블록과 head freeze
-                param.requires_grad = True
-    
-    # def unfreeze_2_layers(self):
-    #     for name, param in self.model.named_parameters():
-    #         if 'blocks.18' in name or 'blocks.19' in name:
-    #             param.requires_grad = True
+        if model_name == "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k":
+            for name, param in self.model.named_parameters():
+                if 'blocks.18' in name or 'blocks.19' in name or 'blocks.20' in name or 'blocks.21' in name or 'blocks.22' in name or 'blocks.23' in name or 'head' in name:  # 마지막 6개 블록과 head unfreeze
+                    param.requires_grad = True
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)

@@ -16,7 +16,6 @@ from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
 
 
-
 def visualize_gradcam(
         model: torch.nn.Module,
         device: torch.device,
@@ -61,8 +60,6 @@ def visualize_gradcam(
         outputs = model(inputs)  # 모델을 통해 예측을 수행합니다.
         _, preds = torch.max(outputs, 1)  # 예측된 클래스 인덱스를 가져옵니다.
 
-
-        
         # 배치 내의 각 이미지에 대해 처리합니다.
         for j in range(inputs.size()[0]):
             if current_index == image_index:
@@ -110,8 +107,6 @@ def visualize_gradcam(
 
     # 만약 원하는 인덱스의 이미지를 찾지 못했다면 메시지를 출력합니다.
     print(f"Image at index {image_index} not found in the dataloader.")
-
-
 
 #이미지 파일을 무작위로 선택할 수 있게 합니다.(Eva모델에서는 필요.)
 def get_random_image(train_dir):
@@ -239,8 +234,6 @@ def visualize_attention_eva02(
         print(f"Attention map saved to: {output_path}")
     else:
         print("No attention maps were captured.")
-        
-
 
 #config 파일을 이용해 시각화 할 수 있게끔 합니다.
 def perform_visualizations(config, model, data_module):

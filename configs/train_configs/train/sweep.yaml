@@ -1,5 +1,5 @@
 program: train.py
-method: 'bayes'  # Hyperparameter search strategy
+method: 'bayes'  # hyperparameter search strategy
 command:
   - competition1/bin/python  # Python 실행 경로
   - ${program}  # train.py 실행
@@ -7,7 +7,7 @@ command:
   - --use_wandb
 
 metric:
-  name: 'val_acc'  # Metric to optimize
+  name: 'val_acc' 
   goal: 'maximize'
 
 parameters:
@@ -21,17 +21,19 @@ parameters:
     values: [1]
     # distribution: 'int_uniform'
     # min: 1
-    # max: 1
+    # max: 3
   gamma:
     values: [0.5, 0.7]
     # distribution: 'uniform'
     # min: 0.45
     # max: 0.8
-  num_ops:
+  num_ops: # number of augmentation transformations to apply in RandAugment
     values: [2, 3, 4]
-  magnitude:
+  magnitude: # magnitude for transformations in RandAugment
     values: [9, 11, 13]
-  drop_head_prob:
+  
+  # dropout probs
+  drop_head_prob: 
     distribution: 'uniform'
     min: 0.3
     max: 0.5

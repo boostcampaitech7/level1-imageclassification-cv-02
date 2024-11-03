@@ -1,20 +1,19 @@
-data_module: "src.data.custom_datamodules.sketch_datamodule.SketchDataModule"
-model_module: "src.plmodules.sketch_module.SketchModelModule"
+data_module: "src.data.datamodules.sketch_datamodule.SketchDataModule" # data module path
+model_module: "src.plmodules.sketch_module.SketchModelModule" # pl module path
 
-data_config_path: "configs/data_configs/sketch_config.yaml"
-augmentation_config_path: "configs/augmentation_configs/sketch_augmentation.yaml"
-checkpoint_path: "/home/jaegun/Study_jaegun/AI_tech/Team_project/9월 팀프로젝트/level1-imageclassification-cv-02/output/lightning_logs/version_40/checkpoints/epoch=4-step=470.ckpt"   # checkpoint 경로는 본인이 알아서 해줘야함. 자동으로 해주고 싶으면, README.md 파일에 적어둔 코드를 test.py 에 그대로 복붙하면됨 .
+data_config_path: "configs/data_configs/sketch_config.yaml" # data config path
+checkpoint_path: "checkpoints/epoch=4-step=470.ckpt"   # checkpoint path
 
-name: "" #파이썬에서 자동으로 설정할 예정.yaml은 직렬화방식이라 동적으로 동작x
+name: ""
 
 model:
-  model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k"
+  model_name: "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k" # define model
   num_classes: 500
   pretrained: True
 
 trainer:
   accelerator: gpu
   devices: 1
-  default_root_dir: "output"  # outputs 폴더에 저장합니다.
+  default_root_dir: "output"
 
-seed: 42  # 시드 값 추가
+seed: 42
